@@ -1,0 +1,12 @@
+D:\Users\Mahdi\Documents\Visual Studio 2008\Projects\OpenSURFcs\OpenSURFcs\bin\Debug\OpenSURFcs.dll
+D:\Users\Mahdi\Documents\Visual Studio 2008\Projects\OpenSURFcs\OpenSURFcs\bin\Debug\OpenSURFcs.pdb
+D:\Users\Mahdi\Documents\Visual Studio 2008\Projects\OpenSURFcs\OpenSURFcs\bin\Debug\MathNet.Iridium.dll
+D:\Users\Mahdi\Documents\Visual Studio 2008\Projects\OpenSURFcs\OpenSURFcs\obj\Debug\ResolveAssemblyReference.cache
+D:\Users\Mahdi\Documents\Visual Studio 2008\Projects\OpenSURFcs\OpenSURFcs\obj\Debug\OpenSURFcs.dll
+D:\Users\Mahdi\Documents\Visual Studio 2008\Projects\OpenSURFcs\OpenSURFcs\obj\Debug\OpenSURFcs.pdb
+D:\Users\Mahdi\Documents\Visual Studio 2008\Projects\BA StereoSURF\BA StereoSURF\OpenSURFcs\bin\Debug\OpenSURFcs.dll
+D:\Users\Mahdi\Documents\Visual Studio 2008\Projects\BA StereoSURF\BA StereoSURF\OpenSURFcs\bin\Debug\OpenSURFcs.pdb
+D:\Users\Mahdi\Documents\Visual Studio 2008\Projects\BA StereoSURF\BA StereoSURF\OpenSURFcs\bin\Debug\MathNet.Iridium.dll
+D:\Users\Mahdi\Documents\Visual Studio 2008\Projects\BA StereoSURF\BA StereoSURF\OpenSURFcs\obj\Debug\ResolveAssemblyReference.cache
+D:\Users\Mahdi\Documents\Visual Studio 2008\Projects\BA StereoSURF\BA StereoSURF\OpenSURFcs\obj\Debug\OpenSURFcs.dll
+D:\Users\Mahdi\Documents\Visual Studio 2008\Projects\BA StereoSURF\BA StereoSURF\OpenSURFcs\obj\Debug\OpenSURFcs.pdb
