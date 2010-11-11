@@ -21,15 +21,16 @@ namespace BA_StereoSURF
         // members
         private Bitmap _image;
         private Bitmap _image_surfed;
-        private List<IPoint> _interestPoints;
-
+        private List<IPoint> _interestPoints;           // erkannte Punkte
+        private List<IPoint> _interestPoints_upright;   // Normalisierte Punkte d.h. die Ausrichtung der Punkte wurde bereits 
+                                                        // einheitlich ausgerichtet haben um die Rotations-Invarianz beim 
+                                                        // Vergleich zu gewährleisten.
         private bool _applySurfFilter;
         private bool _applyEdgeFilter;
 
         private bool _appliedSurfFilter;
         private bool _appliedEdgeFilter;
-
-
+        
         Form1 __root;
 
         // constructors
@@ -39,6 +40,7 @@ namespace BA_StereoSURF
 
             _image = new Bitmap(path);
             _interestPoints = new List<IPoint>();
+            _interestPoints_upright = new List<IPoint>();
             _appliedEdgeFilter = false;
             _appliedSurfFilter = false;
         }
@@ -51,11 +53,12 @@ namespace BA_StereoSURF
             switch (algo)
             {
                 case InterestAlgorithm.SIFT:
-                    // not supported yet
+                    // not supported yet, use bundler ;)
                     break;
                 case InterestAlgorithm.SURF:
                     IntegralImage iImg = IntegralImage.FromImage(_image);
                     _interestPoints = new List<IPoint>();
+                    _interestPoints_upright = new List<IPoint>();
 
                     Thread th = new Thread(delegate()
                         {
@@ -63,7 +66,9 @@ namespace BA_StereoSURF
                                                                 (int)__root.Pref_Surf_Octaves,
                                                                 (int)__root.Pref_Surf_Samples,
                                                                 iImg);
+                            _interestPoints.ForEach((item) => { _interestPoints_upright.Add((IPoint)item.Clone()); });
                             SurfDescriptor.DecribeInterestPoints(_interestPoints, false, false, iImg);
+                            SurfDescriptor.DecribeInterestPoints(_interestPoints_upright, true, false, iImg);
                         });
                     th.Start();
 
@@ -102,11 +107,14 @@ namespace BA_StereoSURF
                         {
                             IntegralImage iImg = IntegralImage.FromImage(_image);
                             _interestPoints = new List<IPoint>();
+                            _interestPoints_upright = new List<IPoint>();
                             _interestPoints = FastHessian.getIpoints((float)__root.Pref_Surf_Threshold,
                                                                         (int)__root.Pref_Surf_Octaves,
                                                                         (int)__root.Pref_Surf_Samples,
                                                                         iImg);
+                            _interestPoints.ForEach((item) => { _interestPoints_upright.Add((IPoint)item.Clone()); });
                             SurfDescriptor.DecribeInterestPoints(_interestPoints, false, false, iImg);
+                            SurfDescriptor.DecribeInterestPoints(_interestPoints_upright, true, false, iImg);
                         }
 
                         Pen penWhite = new Pen(Color.FromArgb(31, 255, 255 , 255));
