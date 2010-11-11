@@ -8,8 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Diagnostics;
-
 
 using OpenSURFcs;
 
@@ -31,6 +31,7 @@ namespace BA_StereoSURF
         public Form1()
         {
             InitializeComponent();
+            
 
             _sourceOpenFileDialog = new OpenFileDialog();
             _sourceOpenFileDialog.Multiselect = false;
@@ -333,6 +334,5 @@ namespace BA_StereoSURF
             _refFiles.ElementAt(0).Value.ApplyEdgeFilter = t2_cb_bildB_outlines.Checked;
             t2_pb_ref.Invalidate();
         }
-          
     }
 }

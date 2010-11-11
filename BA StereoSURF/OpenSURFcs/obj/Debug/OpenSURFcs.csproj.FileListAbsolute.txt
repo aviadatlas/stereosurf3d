@@ -10,3 +10,9 @@ D:\Users\Mahdi\Documents\Visual Studio 2008\Projects\BA StereoSURF\BA StereoSURF
 D:\Users\Mahdi\Documents\Visual Studio 2008\Projects\BA StereoSURF\BA StereoSURF\OpenSURFcs\obj\Debug\ResolveAssemblyReference.cache
 D:\Users\Mahdi\Documents\Visual Studio 2008\Projects\BA StereoSURF\BA StereoSURF\OpenSURFcs\obj\Debug\OpenSURFcs.dll
 D:\Users\Mahdi\Documents\Visual Studio 2008\Projects\BA StereoSURF\BA StereoSURF\OpenSURFcs\obj\Debug\OpenSURFcs.pdb
+C:\Users\Mahdi\Documents\Visual Studio 2008\Projects\SVN\BA StereoSurf 2D\BA StereoSURF\OpenSURFcs\bin\Debug\OpenSURFcs.dll
+C:\Users\Mahdi\Documents\Visual Studio 2008\Projects\SVN\BA StereoSurf 2D\BA StereoSURF\OpenSURFcs\bin\Debug\OpenSURFcs.pdb
+C:\Users\Mahdi\Documents\Visual Studio 2008\Projects\SVN\BA StereoSurf 2D\BA StereoSURF\OpenSURFcs\bin\Debug\MathNet.Iridium.dll
+C:\Users\Mahdi\Documents\Visual Studio 2008\Projects\SVN\BA StereoSurf 2D\BA StereoSURF\OpenSURFcs\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Mahdi\Documents\Visual Studio 2008\Projects\SVN\BA StereoSurf 2D\BA StereoSURF\OpenSURFcs\obj\Debug\OpenSURFcs.dll
+C:\Users\Mahdi\Documents\Visual Studio 2008\Projects\SVN\BA StereoSurf 2D\BA StereoSURF\OpenSURFcs\obj\Debug\OpenSURFcs.pdb
