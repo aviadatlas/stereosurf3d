@@ -4,12 +4,16 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Diagnostics;
+
+using Microsoft.Xna.Framework;
 
 using OpenSURFcs;
 
@@ -20,6 +24,7 @@ namespace BA_StereoSURF
         private string _sourceFileName;
         private ExtendedImage _sourceFile;
         private OpenFileDialog _sourceOpenFileDialog;
+        private ImageCorrelation _imageCorrelation;
 
         private IDictionary<string, ExtendedImage> _refFiles;
         private IDictionary<string, ExtendedImage> _refFilesHidden;
@@ -334,5 +339,97 @@ namespace BA_StereoSURF
             _refFiles.ElementAt(0).Value.ApplyEdgeFilter = t2_cb_bildB_outlines.Checked;
             t2_pb_ref.Invalidate();
         }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            StartProgress("Comparison Detection", ProgressMode.Continuously, WatcherMode.None, null);
+            _imageCorrelation = new ImageCorrelation(_sourceFile);
+            _imageCorrelation.AddReferenceImages(new List<ExtendedImage>(_refFiles.Values));
+
+            List<CorrelationInfo> correlationInfos = _imageCorrelation.GetCorrelationInfo(_refFiles.ElementAt(0).Value);
+
+            Bitmap bmp = new Bitmap(_sourceFile.Image.Width + _refFiles.ElementAt(0).Value.Image.Width, _sourceFile.Image.Height);
+                           
+            Graphics g1 = Graphics.FromImage(t2_pb_source.Image);
+            Graphics g2 = Graphics.FromImage(t2_pb_ref.Image);
+            g1.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;            
+            g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            Random rand = new Random();
+            foreach (CorrelationInfo ci in correlationInfos)
+            {
+                float m = (ci.Yb-ci.Ya) / ((t2_pb_source.Image.Width-ci.Xa)+(ci.Xb));
+                float n = ci.Ya - (m * ci.Xa);
+                
+                Pen pen = new Pen(Color.FromArgb(63, Color.FromArgb(rand.Next(255), rand.Next(255), rand.Next(255))));
+                SolidBrush brush = new SolidBrush(Color.FromArgb(pen.Color.R, pen.Color.G, pen.Color.B));
+                
+                g1.DrawLine(pen, ci.Xa, ci.Ya, t2_pb_source.Image.Width - 1, m * t2_pb_source.Image.Width + n);
+                g1.FillRectangle(brush, ci.Xa - 2, ci.Ya - 1, 5, 3);
+                
+                g2.DrawLine(pen, 0, m * (t2_pb_source.Image.Width - ci.Xa) + n, ci.Xb, ci.Yb);
+                g2.FillRectangle(brush, ci.Xb - 2, ci.Yb - 1, 5, 3);
+            }
+            g1.Dispose();
+            g2.Dispose();
+
+            renderMixImage();
+            StopProgress();
+        }
+
+        private void radioButton2_CheckedChanged(object sender, EventArgs e)
+        {
+            renderMixImage();
+        }
+        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        {
+            renderMixImage();
+        }
+
+        private void renderMixImage()
+        {
+            if (radioButton2.Checked)
+            {
+                Bitmap bmp = new Bitmap(t2_pb_source.Image.Width + t2_pb_ref.Image.Width, t2_pb_source.Image.Height);
+
+                Graphics g = Graphics.FromImage(bmp);
+                g.DrawImage(t2_pb_source.Image, 0.0f, 0.0f);
+                g.DrawImage(t2_pb_ref.Image, (float)t2_pb_ref.Image.Width, 0.0f);
+                g.Dispose();
+                t2_pb_mix.Image = bmp;
+            }
+            else if (radioButton1.Checked)
+            {
+                Bitmap bmp = new Bitmap(t2_pb_source.Image.Width, t2_pb_source.Image.Height);
+
+                Graphics g = Graphics.FromImage(bmp);
+                g.DrawImage(t2_pb_source.Image, 0.0f, 0.0f);
+                g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+                Bitmap bmp2 = new Bitmap(t2_pb_ref.Image);
+                bmp2 = (Bitmap)SetImgOpacity((Image)bmp2, 0.5f);
+                g.DrawImage(bmp2, 0.0f, 0.0f);
+                g.Dispose();
+
+                t2_pb_mix.Image = bmp;
+            }
+        }
+
+
+
+        public static Image SetImgOpacity(Image imgPic, float imgOpac)
+        {
+            Bitmap bmpPic = new Bitmap(imgPic.Width, imgPic.Height);
+            Graphics gfxPic = Graphics.FromImage(bmpPic);
+            ColorMatrix cmxPic = new ColorMatrix();
+            cmxPic.Matrix33 = imgOpac;
+
+            ImageAttributes iaPic = new ImageAttributes();
+            iaPic.SetColorMatrix(cmxPic, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+            gfxPic.DrawImage(imgPic, new System.Drawing.Rectangle(0, 0, bmpPic.Width, bmpPic.Height), 0, 0, imgPic.Width, imgPic.Height, GraphicsUnit.Pixel, iaPic);
+            gfxPic.Dispose();
+
+            return bmpPic;
+        }
+
+        
     }
 }

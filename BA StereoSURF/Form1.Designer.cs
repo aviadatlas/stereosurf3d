@@ -46,6 +46,8 @@
             this.button1 = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tab_double = new System.Windows.Forms.TabPage();
+            this.button4 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.t2_cb_bildB_background = new System.Windows.Forms.CheckBox();
@@ -75,8 +77,9 @@
             this.pref_surf_threshold = new System.Windows.Forms.NumericUpDown();
             this.tab_debug = new System.Windows.Forms.TabPage();
             this.rtb_debug = new System.Windows.Forms.RichTextBox();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
+            this.button5 = new System.Windows.Forms.Button();
+            this.radioButton1 = new System.Windows.Forms.RadioButton();
+            this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.s1_gb.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.s1_pb_source)).BeginInit();
             this.s2_gb.SuspendLayout();
@@ -251,6 +254,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.button5);
             this.groupBox1.Controls.Add(this.button1);
             this.groupBox1.Font = new System.Drawing.Font("Calibri", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.Location = new System.Drawing.Point(13, 577);
@@ -311,6 +315,26 @@
             this.tab_double.UseVisualStyleBackColor = true;
             this.tab_double.Paint += new System.Windows.Forms.PaintEventHandler(this.tab_double_Paint);
             // 
+            // button4
+            // 
+            this.button4.Image = global::BA_StereoSURF.Properties.Resources.map_magnify;
+            this.button4.Location = new System.Drawing.Point(919, 320);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(37, 37);
+            this.button4.TabIndex = 11;
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
+            // button3
+            // 
+            this.button3.Image = global::BA_StereoSURF.Properties.Resources.map_magnify;
+            this.button3.Location = new System.Drawing.Point(443, 320);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(37, 37);
+            this.button3.TabIndex = 10;
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
             // button2
             // 
             this.button2.Image = global::BA_StereoSURF.Properties.Resources.map_magnify;
@@ -367,6 +391,8 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.radioButton2);
+            this.groupBox2.Controls.Add(this.radioButton1);
             this.groupBox2.Controls.Add(this.t2_cb_vectors);
             this.groupBox2.Location = new System.Drawing.Point(729, 515);
             this.groupBox2.Name = "groupBox2";
@@ -544,7 +570,7 @@
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(130, 26);
             this.comboBox1.TabIndex = 6;
-            this.comboBox1.Text = "Genau";
+            this.comboBox1.Text = "Sehr Genau";
             this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // label5
@@ -579,7 +605,7 @@
             this.pref_surf_samples.Size = new System.Drawing.Size(130, 26);
             this.pref_surf_samples.TabIndex = 4;
             this.pref_surf_samples.Value = new decimal(new int[] {
-            3,
+            2,
             0,
             0,
             0});
@@ -649,7 +675,7 @@
             this.pref_surf_threshold.Size = new System.Drawing.Size(130, 26);
             this.pref_surf_threshold.TabIndex = 0;
             this.pref_surf_threshold.Value = new decimal(new int[] {
-            2,
+            1,
             0,
             0,
             262144});
@@ -673,25 +699,42 @@
             this.rtb_debug.TabIndex = 0;
             this.rtb_debug.Text = "";
             // 
-            // button3
+            // button5
             // 
-            this.button3.Image = global::BA_StereoSURF.Properties.Resources.map_magnify;
-            this.button3.Location = new System.Drawing.Point(443, 320);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(37, 37);
-            this.button3.TabIndex = 10;
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.button5.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button5.Location = new System.Drawing.Point(7, 55);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(225, 28);
+            this.button5.TabIndex = 1;
+            this.button5.Text = "3.2 Korrelation erzeugen";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
-            // button4
+            // radioButton1
             // 
-            this.button4.Image = global::BA_StereoSURF.Properties.Resources.map_magnify;
-            this.button4.Location = new System.Drawing.Point(919, 320);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(37, 37);
-            this.button4.TabIndex = 11;
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.radioButton1.AutoSize = true;
+            this.radioButton1.Font = new System.Drawing.Font("Calibri", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.radioButton1.Location = new System.Drawing.Point(6, 46);
+            this.radioButton1.Name = "radioButton1";
+            this.radioButton1.Size = new System.Drawing.Size(108, 22);
+            this.radioButton1.TabIndex = 6;
+            this.radioButton1.TabStop = true;
+            this.radioButton1.Text = "Überblenden";
+            this.radioButton1.UseVisualStyleBackColor = true;
+            this.radioButton1.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
+            // 
+            // radioButton2
+            // 
+            this.radioButton2.AutoSize = true;
+            this.radioButton2.Font = new System.Drawing.Font("Calibri", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.radioButton2.Location = new System.Drawing.Point(6, 70);
+            this.radioButton2.Name = "radioButton2";
+            this.radioButton2.Size = new System.Drawing.Size(124, 22);
+            this.radioButton2.TabIndex = 7;
+            this.radioButton2.TabStop = true;
+            this.radioButton2.Text = "Nebeneinander";
+            this.radioButton2.UseVisualStyleBackColor = true;
+            this.radioButton2.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
             // 
             // Form1
             // 
@@ -791,6 +834,9 @@
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.RadioButton radioButton2;
+        private System.Windows.Forms.RadioButton radioButton1;
     }
 }
 
