@@ -432,7 +432,9 @@ namespace BA_StereoSURF
 
         private void button6_Click(object sender, EventArgs e)
         {
+            StartProgress("Generating Depthmap", ProgressMode.Continuously, WatcherMode.None, null);
             Bitmap bmp = _imageCorrelation.GenerateDepthmap(true, false);
+            StopProgress();
             if (bmp != null)
             {
                 ImageView iv = new ImageView(this, bmp, getFileNameWithoutPath("depthmap_"+s2_clb_images.CheckedItems[0].ToString()));
