@@ -109,6 +109,90 @@ namespace BA_StereoSURF
                         g.FillRectangle(new SolidBrush(Color.FromArgb(255,c,c,c)), ci.Xa, ci.Ya, 1, 1);
                     }
                     g.Dispose();
+
+                    // growing 'n stuff
+
+                    // dieser arschlahm
+                    /*
+                    bool blackLeft = false;
+                    do
+                    {
+                        blackLeft = false;
+                        for (int x = 0; x < bmp.Width; x++)
+                        {
+                            for (int y = 0; y < bmp.Height; y++)
+                            {
+                                Color c_xy = bmp.GetPixel(x, y);
+                                if (c_xy == Color.FromArgb(0, 0, 0))
+                                {
+                                    int sum = 0;
+                                    int n = 0;
+                                    if (x + 1 < bmp.Width)
+                                    {
+                                        Color c_r = bmp.GetPixel(x + 1, y);
+                                        if (c_r != Color.FromArgb(0, 0, 0))
+                                        {
+                                            sum += c_r.B;
+                                            n++;
+                                        }
+                                    }
+                                    if (y + 1 < bmp.Height)
+                                    {
+                                        Color c_d = bmp.GetPixel(x, y + 1);
+                                        if (c_d != Color.FromArgb(0, 0, 0))
+                                        {
+                                            sum += c_d.B;
+                                            n++;
+                                        }
+                                    }
+                                    if (n > 0)
+                                        bmp.SetPixel(x, y, Color.FromArgb((int)Math.Round((decimal)(sum / n)), (int)Math.Round((decimal)(sum / n)), (int)Math.Round((decimal)(sum / n))));
+                                    else
+                                        blackLeft = true;
+                                }
+                            }
+                        }
+                    } while (blackLeft);
+                    */
+                    
+                    // probieren wirs mal so
+                    int blackLeft = bmp.Width*bmp.Height;
+                    int r = 1;
+                    do
+                    {
+                        foreach (CorrelationInfo ci in _correlations[_refImages.ElementAt(0)])
+                        {
+                            float d = Math.Abs(ci.Depth);
+                            int c = (int)Math.Round(((d - zMin) / (zMax - zMin)) * 254) + 1;
+
+                            int minOffsetX = r*-1;
+                            if (minOffsetX + (int)ci.Xa < 0)
+                                minOffsetX = (int)ci.Xa * -1;
+                            int minOffsetY = r*-1;
+                            if (minOffsetY + ci.Ya < 0)
+                                minOffsetY = (int)ci.Ya * -1;
+
+                            int maxOffsetX = r;
+                            if (maxOffsetX + ci.Xa > bmp.Width)
+                                maxOffsetX = bmp.Width - (int)ci.Xa;
+                            int maxOffsetY = r;
+                            if (maxOffsetY + ci.Ya > bmp.Height)
+                                maxOffsetY = bmp.Height - (int)ci.Ya;
+
+                            for (int offsetX = minOffsetX; offsetX < maxOffsetX; offsetX++)
+                            {
+                                for (int offsetY = minOffsetY; offsetY < maxOffsetY; offsetY++)
+                                {
+                                    if (bmp.GetPixel((int)ci.Xa + offsetX, (int)ci.Ya + offsetY) == Color.Black && Math.Sqrt(Math.Pow(offsetX, 2) + Math.Pow(offsetY, 2)) < r)
+                                    {
+                                        bmp.SetPixel((int)ci.Xa + offsetX, (int)ci.Ya + offsetY, Color.FromArgb(255, c, c, c));
+                                        blackLeft--;
+                                    }
+                                }
+                            }                            
+                        }
+                        r++;
+                    }while(blackLeft>0);
                 }
                 else
                 {   // iterativ mit allen Bildern der Range
