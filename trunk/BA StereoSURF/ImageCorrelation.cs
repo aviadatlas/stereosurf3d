@@ -75,17 +75,50 @@ namespace BA_StereoSURF
         /// Liefert ein fertiges Depthmap-Bild in der Perspektive des Ausgangsbildes
         /// </summary>
         /// <param name="simple">Nur ein Referenzbild wird genutzt</param>
-        /// <param name="hdr">Resultierendes Bild hat 32bit Farbtiefe</param>
+        /// <param name="hdr">Resultierendes Bild hat 32bit Farbtiefe (not supported yet)</param>
         /// <returns></returns>
-        public Image GenerateDepthmap(bool simple, bool hdr)
+        public Bitmap GenerateDepthmap(bool simple, bool hdr)
         {
-            if (simple)
+            if (_correlations.Count > 0)
             {
+                Bitmap bmp = new Bitmap(_baseImage.Image.Width, _baseImage.Image.Height);
+                if (simple)
+                {
+                    // TODO:    Kantenerkennungsdingens muss noch mit rein
 
+                    // calc PODs (peaks of depths - huh how epical^^)
+                    float zMin = float.MaxValue;
+                    float zMax = float.MinValue;
+                    _correlations[_refImages.ElementAt(0)].ForEach((item) =>
+                    {
+                        if (item.Depth < zMin)
+                            zMin = item.Depth;
+                        if (item.Depth > zMax)
+                            zMax = item.Depth;
+                    });
+
+                    // Draw to bitmap                
+                    Graphics g = Graphics.FromImage(bmp);
+                    g.FillRectangle(new SolidBrush(Color.Black), 0, 0, bmp.Width - 1f, bmp.Height - 1f);
+                    foreach (CorrelationInfo ci in _correlations[_refImages.ElementAt(0)])
+                    {
+                        // TODO:    Sollte man evtl. nicht Abs() machen, denn der Fehler bei Fehlergebnissen verdoppelt sich so
+                        //          müsst quasi geschaut werden wie die tendenzielle Richtung aufm Zahlenstrahl ist
+                        float d = Math.Abs(ci.Depth); 
+                        int c = (int)Math.Round(((d-zMin) / (zMax-zMin)) * 255); // TODO:    only for non-hdr
+                        g.FillRectangle(new SolidBrush(Color.FromArgb(255,c,c,c)), ci.Xa, ci.Ya, 1, 1);
+                    }
+                    g.Dispose();
+                }
+                else
+                {   // iterativ mit allen Bildern der Range
+
+                }
+                return bmp;
             }
             else
-            {   // iterativ mit allen Bildern der Range
-
+            {
+                return null;
             }
         }
 

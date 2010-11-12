@@ -430,6 +430,20 @@ namespace BA_StereoSURF
             return bmpPic;
         }
 
+        private void button6_Click(object sender, EventArgs e)
+        {
+            Bitmap bmp = _imageCorrelation.GenerateDepthmap(true, false);
+            if (bmp != null)
+            {
+                ImageView iv = new ImageView(this, bmp, getFileNameWithoutPath("depthmap_"+s2_clb_images.CheckedItems[0].ToString()));
+                iv.Show();
+            }
+            else
+            {
+                MessageBox.Show("Tiefenbild konnte nicht errechnet werden!");
+            }
+        }
+
         
     }
 }
