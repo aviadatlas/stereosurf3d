@@ -22,3 +22,15 @@ C:\Users\Mahdi\Documents\Visual Studio 2008\Projects\SVN\BA StereoSurf 2D\BA Ste
 C:\Users\Mahdi\Documents\Visual Studio 2008\Projects\SVN\BA StereoSurf 2D\BA StereoSURF\obj\Debug\BA_StereoSURF.ImageView.resources
 C:\Users\Mahdi\Documents\Visual Studio 2008\Projects\SVN\BA StereoSurf 2D\BA StereoSURF\obj\Debug\BA_StereoSURF.Properties.Resources.resources
 C:\Users\Mahdi\Documents\Visual Studio 2008\Projects\SVN\BA StereoSurf 2D\BA StereoSURF\obj\Debug\BA StereoSURF.csproj.GenerateResource.Cache
+D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\obj\Debug\BA StereoSURF.exe
+D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\obj\Debug\BA StereoSURF.pdb
+D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\obj\Debug\ResolveAssemblyReference.cache
+D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\obj\Debug\BA_StereoSURF.Form1.resources
+D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\obj\Debug\BA_StereoSURF.ProgressForm.resources
+D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\obj\Debug\BA_StereoSURF.ImageView.resources
+D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\obj\Debug\BA_StereoSURF.Properties.Resources.resources
+D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\obj\Debug\BA StereoSURF.csproj.GenerateResource.Cache
+D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\bin\Debug\BA StereoSURF.exe
+D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\bin\Debug\BA StereoSURF.pdb
+D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\bin\Debug\OpenSURFcs.dll
+D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\bin\Debug\OpenSURFcs.pdb
