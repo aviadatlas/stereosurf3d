@@ -39,6 +39,10 @@ namespace BA_StereoSURF
         }
 
         /* methods */
+        /// <summary>
+        /// Fügt diverses weitere Bild hinzu um daraus weitere Korrelationen zu errechnen
+        /// </summary>
+        /// <param name="eImg">Bild mit zuvor berechneten SURF-Daten</param>
         public void AddReferenceImage(ExtendedImage eImg)
         {
             if (eImg.InterestPointsSURF.Count > 0)
@@ -47,16 +51,42 @@ namespace BA_StereoSURF
                 _correlations.Add(eImg, getCorrelationInfos(eImg));
             }    
         }   
+        /// <summary>
+        /// Fügt diverse weitere Bilder hinzu um daraus weitere Korrelationen zu errechnen
+        /// </summary>
+        /// <param name="range">Bilder mit zuvor berechneten SURF-Daten</param>
         public void AddReferenceImages(List<ExtendedImage> range)
         {
             range.ForEach((item) => { AddReferenceImage(item); });
         }
+        /// <summary>
+        /// Gibt eine Liste mit allen gefundenen Korrelationen zurück
+        /// </summary>
+        /// <param name="eImg">Referenzbild</param>
+        /// <returns>Eine Liste mit allen Korrelationsinformationen</returns>
         public List<CorrelationInfo> GetCorrelationInfo(ExtendedImage eImg)
         {
             if (_correlations.ContainsKey(eImg))
                 return _correlations[eImg];
             else
                 return null;
+        }
+        /// <summary>
+        /// Liefert ein fertiges Depthmap-Bild in der Perspektive des Ausgangsbildes
+        /// </summary>
+        /// <param name="simple">Nur ein Referenzbild wird genutzt</param>
+        /// <param name="hdr">Resultierendes Bild hat 32bit Farbtiefe</param>
+        /// <returns></returns>
+        public Image GenerateDepthmap(bool simple, bool hdr)
+        {
+            if (simple)
+            {
+
+            }
+            else
+            {   // iterativ mit allen Bildern der Range
+
+            }
         }
 
         private List<CorrelationInfo> getCorrelationInfos(ExtendedImage eImg)
