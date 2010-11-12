@@ -157,6 +157,7 @@ namespace BA_StereoSURF
                     
                     // probieren wirs mal so
                     int blackLeft = bmp.Width*bmp.Height;
+                    int [,] bmpVector = new int[bmp.Width,bmp.Height];                    
                     int r = 1;
                     List<CorrelationInfo> finished = new List<CorrelationInfo>();
                     do
@@ -187,10 +188,10 @@ namespace BA_StereoSURF
                             {
                                 for (int offsetY = minOffsetY; offsetY < maxOffsetY; offsetY++)
                                 {
-                                    Color gotColor = bmp.GetPixel((int)ci.Xa + offsetX, (int)ci.Ya + offsetY);
-                                    if ((gotColor.B+gotColor.G+gotColor.R == 0) && Math.Sqrt(Math.Pow(offsetX, 2) + Math.Pow(offsetY, 2)) < r)
+                                    if ((bmpVector[(int)ci.Xa + offsetX, (int)ci.Ya + offsetY] == 0) && Math.Sqrt(Math.Pow(offsetX, 2) + Math.Pow(offsetY, 2)) < r)
                                     {
-                                        bmp.SetPixel((int)ci.Xa + offsetX, (int)ci.Ya + offsetY, Color.FromArgb(255, c, c, c));
+                                        //bmp.SetPixel((int)ci.Xa + offsetX, (int)ci.Ya + offsetY, Color.FromArgb(255, c, c, c));
+                                        bmpVector[(int)ci.Xa + offsetX, (int)ci.Ya + offsetY] = c;
                                         blackLeft--;
                                         //System.Diagnostics.Debug.WriteLine(String.Format("Zeichne #{0}:\tx={1}\ty={2}", c, ci.Xa + offsetX, ci.Ya + offsetY));
                                     }
@@ -206,7 +207,11 @@ namespace BA_StereoSURF
                         }
                         r++;
                         System.Diagnostics.Debug.WriteLine(String.Format("Noch {0} Pixel", blackLeft));
-                    }while(blackLeft>10000);
+                    }while(blackLeft>5000);
+
+                    for (int curX = 0; curX < bmp.Width; curX++)
+                        for (int curY = 0; curY < bmp.Height; curY++)
+                            bmp.SetPixel(curX,curY, Color.FromArgb(bmpVector[curX,curY],bmpVector[curX,curY],bmpVector[curX,curY]));
                 }
                 else
                 {   // iterativ mit allen Bildern der Range
