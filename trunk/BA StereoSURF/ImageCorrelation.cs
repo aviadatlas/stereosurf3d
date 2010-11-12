@@ -206,7 +206,7 @@ namespace BA_StereoSURF
                         }
                         r++;
                         System.Diagnostics.Debug.WriteLine(String.Format("Noch {0} Pixel", blackLeft));
-                    }while(blackLeft>100000);
+                    }while(blackLeft>10000);
                 }
                 else
                 {   // iterativ mit allen Bildern der Range
