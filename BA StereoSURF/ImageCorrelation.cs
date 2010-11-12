@@ -162,6 +162,7 @@ namespace BA_StereoSURF
                     {
                         foreach (CorrelationInfo ci in _correlations[_refImages.ElementAt(0)])
                         {
+                            System.Diagnostics.Debug.WriteLine(String.Format("Nächster CP:\tx={0}\ty={1}", ci.Xa, ci.Ya));
                             float d = Math.Abs(ci.Depth);
                             int c = (int)Math.Round(((d - zMin) / (zMax - zMin)) * 254) + 1;
 
@@ -187,6 +188,7 @@ namespace BA_StereoSURF
                                     {
                                         bmp.SetPixel((int)ci.Xa + offsetX, (int)ci.Ya + offsetY, Color.FromArgb(255, c, c, c));
                                         blackLeft--;
+                                        System.Diagnostics.Debug.WriteLine(String.Format("Zeichne #{0}:\tx={1}\ty={2}", c, ci.Xa+offsetX, ci.Ya+offsetY));
                                     }
                                 }
                             }                            
