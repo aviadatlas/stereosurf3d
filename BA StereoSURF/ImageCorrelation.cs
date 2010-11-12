@@ -158,11 +158,14 @@ namespace BA_StereoSURF
                     // probieren wirs mal so
                     int blackLeft = bmp.Width*bmp.Height;
                     int r = 1;
+                    List<CorrelationInfo> finished = new List<CorrelationInfo>();
                     do
                     {
-                        foreach (CorrelationInfo ci in _correlations[_refImages.ElementAt(0)])
+                        foreach (CorrelationInfo ci in _correlations[_refImages.ElementAt(0)].FindAll(delegate (CorrelationInfo thisCI) { return !finished.Contains(thisCI);}))
                         {
-                            System.Diagnostics.Debug.WriteLine(String.Format("Nächster CP:\tx={0}\ty={1}", ci.Xa, ci.Ya));
+                            int blackLeft_cache = blackLeft;
+
+                            //System.Diagnostics.Debug.WriteLine(String.Format("Nächster CP:\tx={0}\ty={1}", ci.Xa, ci.Ya));
                             float d = Math.Abs(ci.Depth);
                             int c = (int)Math.Round(((d - zMin) / (zMax - zMin)) * 254) + 1;
 
@@ -184,17 +187,26 @@ namespace BA_StereoSURF
                             {
                                 for (int offsetY = minOffsetY; offsetY < maxOffsetY; offsetY++)
                                 {
-                                    if (bmp.GetPixel((int)ci.Xa + offsetX, (int)ci.Ya + offsetY) == Color.Black && Math.Sqrt(Math.Pow(offsetX, 2) + Math.Pow(offsetY, 2)) < r)
+                                    Color gotColor = bmp.GetPixel((int)ci.Xa + offsetX, (int)ci.Ya + offsetY);
+                                    if ((gotColor.B+gotColor.G+gotColor.R == 0) && Math.Sqrt(Math.Pow(offsetX, 2) + Math.Pow(offsetY, 2)) < r)
                                     {
                                         bmp.SetPixel((int)ci.Xa + offsetX, (int)ci.Ya + offsetY, Color.FromArgb(255, c, c, c));
                                         blackLeft--;
-                                        System.Diagnostics.Debug.WriteLine(String.Format("Zeichne #{0}:\tx={1}\ty={2}", c, ci.Xa+offsetX, ci.Ya+offsetY));
+                                        //System.Diagnostics.Debug.WriteLine(String.Format("Zeichne #{0}:\tx={1}\ty={2}", c, ci.Xa + offsetX, ci.Ya + offsetY));
+                                    }
+                                    else
+                                    {
+                                        //System.Diagnostics.Debug.WriteLine(String.Format("Finde #{0}:\tx={1}\ty={2}", bmp.GetPixel((int)ci.Xa + offsetX, (int)ci.Ya + offsetY).B, ci.Xa + offsetX, ci.Ya + offsetY));
                                     }
                                 }
-                            }                            
+                            }
+
+                            if (blackLeft_cache == blackLeft)
+                                finished.Add(ci);
                         }
                         r++;
-                    }while(blackLeft>0);
+                        System.Diagnostics.Debug.WriteLine(String.Format("Noch {0} Pixel", blackLeft));
+                    }while(blackLeft>100000);
                 }
                 else
                 {   // iterativ mit allen Bildern der Range
