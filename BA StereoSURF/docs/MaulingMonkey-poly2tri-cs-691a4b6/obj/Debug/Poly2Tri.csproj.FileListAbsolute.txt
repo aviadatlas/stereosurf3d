@@ -1,0 +1,5 @@
+D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\docs\MaulingMonkey-poly2tri-cs-691a4b6\bin\Debug\Poly2Tri.dll
+D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\docs\MaulingMonkey-poly2tri-cs-691a4b6\bin\Debug\Poly2Tri.pdb
+D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\docs\MaulingMonkey-poly2tri-cs-691a4b6\obj\Debug\ResolveAssemblyReference.cache
+D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\docs\MaulingMonkey-poly2tri-cs-691a4b6\obj\Debug\Poly2Tri.dll
+D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\docs\MaulingMonkey-poly2tri-cs-691a4b6\obj\Debug\Poly2Tri.pdb

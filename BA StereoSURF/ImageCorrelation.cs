@@ -7,8 +7,8 @@ using System.Drawing;
 using System.Diagnostics;
 
 using Microsoft.Xna.Framework;
-
 using OpenSURFcs;
+using Poly2Tri;
 
 namespace BA_StereoSURF
 {
@@ -25,6 +25,7 @@ namespace BA_StereoSURF
         private ExtendedImage _baseImage;
         private List<ExtendedImage> _refImages;
         private Dictionary<ExtendedImage, List<CorrelationInfo>> _correlations;
+        private Poly2Tri.PointSet _pointSet;
 
         /* constructors */
         /// <summary>
@@ -81,6 +82,33 @@ namespace BA_StereoSURF
         {
             if (_correlations.Count > 0)
             {
+                // TEST: Tri
+                TriangulationPoint[] pts = new TriangulationPoint[_correlations[_refImages.ElementAt(0)].Count];
+                int n = 0;
+                /*List<ceometric.DelaunayTriangulator.Point> ps = new List<ceometric.DelaunayTriangulator.Point>();*/
+                foreach (CorrelationInfo ci in _correlations[_refImages.ElementAt(0)])
+                {
+                    /*ps.Add(new ceometric.DelaunayTriangulator.Point((double)ci.Xa, (double)ci.Ya, 0));*/
+                    pts[n] = new TriangulationPoint((double)ci.Xa, (double)ci.Ya);
+                    n++;
+                }
+                _pointSet = new PointSet(pts.ToList<TriangulationPoint>());
+                try
+                {
+                    P2T.Triangulate(_pointSet );
+                }
+                catch (Exception e) { System.Diagnostics.Debug.WriteLine("FEHLER: " + e.Message); }
+
+                System.Diagnostics.Debug.WriteLine(_pointSet.Triangles.Count.ToString() + " Dreiecke, " + _pointSet.Points.Count.ToString() + " Punkte");
+                /*
+                try
+                {
+                    DelaunayTriangulation2d dt = new DelaunayTriangulation2d();
+                    dt.Triangulate(ps);
+                }
+                catch (Exception e) { System.Diagnostics.Debug.Write("FEHLER: " + e.Message); }
+                */
+
                 Bitmap bmp = new Bitmap(_baseImage.Image.Width, _baseImage.Image.Height);
                 if (simple)
                 {
@@ -207,15 +235,27 @@ namespace BA_StereoSURF
                         }
                         r++;
                         System.Diagnostics.Debug.WriteLine(String.Format("Noch {0} Pixel", blackLeft));
-                    }while(blackLeft>5000);
-
+                    }while(blackLeft>600000);
+                    
                     for (int curX = 0; curX < bmp.Width; curX++)
                         for (int curY = 0; curY < bmp.Height; curY++)
                             bmp.SetPixel(curX,curY, Color.FromArgb(bmpVector[curX,curY],bmpVector[curX,curY],bmpVector[curX,curY]));
+
+                    // draw tris
+                    Graphics g2 = Graphics.FromImage(bmp);
+                    g2.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                    g2.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+                    foreach (DelaunayTriangle tri in _pointSet.Triangles)
+                    {
+                        Pen p = new Pen(Color.FromArgb(11, Color.Red));
+                        g2.DrawLine(p, tri.Points[0].Xf, tri.Points[0].Yf, tri.Points[1].Xf, tri.Points[1].Yf);
+                        g2.DrawLine(p, tri.Points[1].Xf, tri.Points[1].Yf, tri.Points[2].Xf, tri.Points[2].Yf);
+                        g2.DrawLine(p, tri.Points[2].Xf, tri.Points[2].Yf, tri.Points[0].Xf, tri.Points[0].Yf);
+                    }
+                    g2.Dispose();
                 }
                 else
                 {   // iterativ mit allen Bildern der Range
-
                 }
                 return bmp;
             }
@@ -282,6 +322,28 @@ namespace BA_StereoSURF
 
             }
             return returnList;
+        }
+
+       /* public static List<Vector2[]> GetTriangles(List<Vector2> pts, float width, float height)
+        {
+            
+        }*/
+
+        public static bool InTriangle(Vector2 A, Vector2 B, Vector2 C, Vector2 P)
+        {
+            Vector2 v0 = C - A;
+            Vector2 v1 = B - A;
+            Vector2 v2 = P - A;
+            float[,] p = new float[2, 3];
+            p[0, 0] = Vector2.Dot(v0, v0);
+            p[0, 1] = Vector2.Dot(v0, v1);
+            p[0, 2] = Vector2.Dot(v0, v2);
+            p[1, 0] = Vector2.Dot(v1, v1);
+            p[1, 1] = Vector2.Dot(v1, v2);
+            float invD = 1 / (p[0,0]*p[1,1] - p[0,1]*p[0,1]);
+            float u = (p[1, 1] * p[0, 2] - p[0, 1] * p[1, 2]) * invD;
+            float v = (p[0, 0] * p[1, 2] - p[0, 1] * p[0, 2]) * invD;
+            return (u > 0) && (v > 0) && (u + v < 1);
         }
 
         /* props */ 

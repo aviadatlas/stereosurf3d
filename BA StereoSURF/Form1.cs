@@ -14,8 +14,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Diagnostics;
 
 using Microsoft.Xna.Framework;
-
 using OpenSURFcs;
+using Poly2Tri;
 
 namespace BA_StereoSURF
 {
@@ -51,6 +51,17 @@ namespace BA_StereoSURF
             _refFiles = new Dictionary<string, ExtendedImage>();
             _refFilesHidden = new Dictionary<string, ExtendedImage>();
             _refFilesHiddenIndices = new List<int>();
+
+            /*Poly2Tri.PolygonPoint[] pts = new PolygonPoint[3];
+            pts[0] = new PolygonPoint(12.43, 50.34);
+            pts[1] = new PolygonPoint(32.43, 50.34);
+            pts[2] = new PolygonPoint(22.43, 30.34);
+            Poly2Tri.Polygon p = new Polygon(pts);
+
+            Poly2Tri.P2T.Triangulate(p);
+
+            System.Diagnostics.Debug.WriteLine(p.Triangles.Count.ToString() + " tries");
+            System.Diagnostics.Debug.WriteLine(p.Triangles.Count.ToString() + " tries");*/
         }
 
         private void s1_b_select_Click(object sender, EventArgs e)
