@@ -16,10 +16,11 @@ namespace BA_StereoSURF
     {       
         /* statics */
         // accuracy in percent
-        public const float ACCURACY_JOINT       = 0.01f;
-        public const float ACCURACY_ORIENTATION = 0.05f;
-        public const float ACCURACY_SCALE       = 20f; // total Pixel-difference
+        public const float ACCURACY_JOINT       = 0.001f;
+        public const float ACCURACY_ORIENTATION = 0.005f;
+        public const float ACCURACY_SCALE       = 10f;  // total Pixel-difference
         public const float ACCURACY_SURF        = 0.10f;
+        public const float CLAMP_TOTAL_PEEKS    = 0.1f; // percentage of differs from avg
 
         /* members */
         private ExtendedImage _baseImage;
@@ -85,14 +86,23 @@ namespace BA_StereoSURF
                 // TEST: Tri
                 TriangulationPoint[] pts = new TriangulationPoint[_correlations[_refImages.ElementAt(0)].Count];
                 int n = 0;
-                /*List<ceometric.DelaunayTriangulator.Point> ps = new List<ceometric.DelaunayTriangulator.Point>();*/
                 foreach (CorrelationInfo ci in _correlations[_refImages.ElementAt(0)])
                 {
-                    /*ps.Add(new ceometric.DelaunayTriangulator.Point((double)ci.Xa, (double)ci.Ya, 0));*/
                     pts[n] = new TriangulationPoint((double)ci.Xa, (double)ci.Ya);
                     n++;
-                }
+                }                
                 _pointSet = new PointSet(pts.ToList<TriangulationPoint>());
+
+                for (int div = 0; div <= 20; div++)
+                {
+                    double cur_x = (double)_baseImage.Image.Width * ((double)div / 20);
+                    double cur_y = (double)_baseImage.Image.Height * ((double)div / 20);
+
+                    _pointSet.Points.Add(new TriangulationPoint(cur_x, 0));
+                    _pointSet.Points.Add(new TriangulationPoint(cur_x, (double)_baseImage.Image.Height));
+                    _pointSet.Points.Add(new TriangulationPoint(0, cur_y));
+                    _pointSet.Points.Add(new TriangulationPoint((double)_baseImage.Image.Width, cur_y));
+                }
                 try
                 {
                     P2T.Triangulate(_pointSet );
@@ -241,7 +251,7 @@ namespace BA_StereoSURF
                         for (int curY = 0; curY < bmp.Height; curY++)
                             bmp.SetPixel(curX,curY, Color.FromArgb(bmpVector[curX,curY],bmpVector[curX,curY],bmpVector[curX,curY]));
 
-                    // draw tris
+                    // draw tri-mesh
                     Graphics g2 = Graphics.FromImage(bmp);
                     g2.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
                     g2.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
@@ -321,13 +331,29 @@ namespace BA_StereoSURF
                 // TODO:    3. rotation-normalized descriptor proof                            
 
             }
+
+            // filter total Peeks
+            /*
+            float sum = 0;
+            float min = float.MaxValue;
+            float max = float.MinValue;
+            returnList.ForEach((item) => {
+                sum += item.Depth;
+                if (item.Depth < min)
+                    min = item.Depth;
+                if (item.Depth > max)
+                    max = item.Depth;
+            });
+            float avg = sum / returnList.Count;
+            float range = max - min;
+            return returnList.FindAll(delegate(CorrelationInfo ci) {
+                return (ci.Depth > min + (ImageCorrelation.CLAMP_TOTAL_PEEKS*(range/2))) && (ci.Depth < max - (ImageCorrelation.CLAMP_TOTAL_PEEKS*(range/2)));
+            });*/
+
+            // TODO:    filter region peeks
+
             return returnList;
         }
-
-       /* public static List<Vector2[]> GetTriangles(List<Vector2> pts, float width, float height)
-        {
-            
-        }*/
 
         public static bool InTriangle(Vector2 A, Vector2 B, Vector2 C, Vector2 P)
         {
