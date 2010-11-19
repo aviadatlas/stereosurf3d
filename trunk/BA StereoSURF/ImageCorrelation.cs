@@ -20,7 +20,7 @@ namespace BA_StereoSURF
         public const float ACCURACY_ORIENTATION = 0.005f;
         public const float ACCURACY_SCALE       = 10f;  // total Pixel-difference
         public const float ACCURACY_SURF        = 0.10f;
-        public const float CLAMP_TOTAL_PEEKS    = 0.1f; // percentage of differs from avg
+        public const float CLAMP_TOTAL_PEEKS    = 0.075f; // percentage of of width as max linkingvectorlength
 
         /* members */
         private ExtendedImage _baseImage;
@@ -245,7 +245,7 @@ namespace BA_StereoSURF
                         }
                         r++;
                         System.Diagnostics.Debug.WriteLine(String.Format("Noch {0} Pixel", blackLeft));
-                    }while(blackLeft>600000);
+                    }while(blackLeft>6000);
                     
                     for (int curX = 0; curX < bmp.Width; curX++)
                         for (int curY = 0; curY < bmp.Height; curY++)
@@ -332,7 +332,11 @@ namespace BA_StereoSURF
 
             }
 
-            // filter total Peeks
+            // filter total Peeks            
+            // TODO:    should depend on camera matrices
+            return returnList.FindAll(delegate (CorrelationInfo ci) {
+                return (Math.Abs(ci.Xa - ci.Xb) < _baseImage.Image.Width * ImageCorrelation.CLAMP_TOTAL_PEEKS);
+            });
             /*
             float sum = 0;
             float min = float.MaxValue;

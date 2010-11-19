@@ -43,6 +43,8 @@
             this.s2_pb_selected = new System.Windows.Forms.PictureBox();
             this.s2_clb_imagesHidden = new System.Windows.Forms.CheckedListBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button6 = new System.Windows.Forms.Button();
+            this.button5 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tab_double = new System.Windows.Forms.TabPage();
@@ -54,6 +56,8 @@
             this.t2_cb_bildB_outlines = new System.Windows.Forms.CheckBox();
             this.t2_cb_bildB_surf = new System.Windows.Forms.CheckBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.radioButton2 = new System.Windows.Forms.RadioButton();
+            this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.t2_cb_vectors = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
@@ -77,10 +81,6 @@
             this.pref_surf_threshold = new System.Windows.Forms.NumericUpDown();
             this.tab_debug = new System.Windows.Forms.TabPage();
             this.rtb_debug = new System.Windows.Forms.RichTextBox();
-            this.button5 = new System.Windows.Forms.Button();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
-            this.radioButton2 = new System.Windows.Forms.RadioButton();
-            this.button6 = new System.Windows.Forms.Button();
             this.s1_gb.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.s1_pb_source)).BeginInit();
             this.s2_gb.SuspendLayout();
@@ -266,6 +266,28 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Schritt 3 - Methoden";
             // 
+            // button6
+            // 
+            this.button6.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button6.Location = new System.Drawing.Point(7, 91);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(225, 28);
+            this.button6.TabIndex = 2;
+            this.button6.Text = "3.3 Depthmap generieren";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
+            // button5
+            // 
+            this.button5.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button5.Location = new System.Drawing.Point(7, 55);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(225, 28);
+            this.button5.TabIndex = 1;
+            this.button5.Text = "3.2 Korrelation erzeugen";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
+            // 
             // button1
             // 
             this.button1.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -403,6 +425,32 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Mischbild";
             // 
+            // radioButton2
+            // 
+            this.radioButton2.AutoSize = true;
+            this.radioButton2.Font = new System.Drawing.Font("Calibri", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.radioButton2.Location = new System.Drawing.Point(6, 70);
+            this.radioButton2.Name = "radioButton2";
+            this.radioButton2.Size = new System.Drawing.Size(124, 22);
+            this.radioButton2.TabIndex = 7;
+            this.radioButton2.TabStop = true;
+            this.radioButton2.Text = "Nebeneinander";
+            this.radioButton2.UseVisualStyleBackColor = true;
+            this.radioButton2.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
+            // 
+            // radioButton1
+            // 
+            this.radioButton1.AutoSize = true;
+            this.radioButton1.Font = new System.Drawing.Font("Calibri", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.radioButton1.Location = new System.Drawing.Point(6, 46);
+            this.radioButton1.Name = "radioButton1";
+            this.radioButton1.Size = new System.Drawing.Size(108, 22);
+            this.radioButton1.TabIndex = 6;
+            this.radioButton1.TabStop = true;
+            this.radioButton1.Text = "Überblenden";
+            this.radioButton1.UseVisualStyleBackColor = true;
+            this.radioButton1.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
+            // 
             // t2_cb_vectors
             // 
             this.t2_cb_vectors.AutoSize = true;
@@ -412,6 +460,7 @@
             this.t2_cb_vectors.TabIndex = 5;
             this.t2_cb_vectors.Text = "Vektorlinien einblenden";
             this.t2_cb_vectors.UseVisualStyleBackColor = true;
+            this.t2_cb_vectors.CheckedChanged += new System.EventHandler(this.t2_cb_vectors_CheckedChanged);
             // 
             // label2
             // 
@@ -485,6 +534,7 @@
             this.t2_pb_mix.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.t2_pb_mix.TabIndex = 5;
             this.t2_pb_mix.TabStop = false;
+            this.t2_pb_mix.Paint += new System.Windows.Forms.PaintEventHandler(this.t2_pb_mix_Paint);
             // 
             // t2_pb_ref
             // 
@@ -700,54 +750,6 @@
             this.rtb_debug.Size = new System.Drawing.Size(976, 706);
             this.rtb_debug.TabIndex = 0;
             this.rtb_debug.Text = "";
-            // 
-            // button5
-            // 
-            this.button5.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button5.Location = new System.Drawing.Point(7, 55);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(225, 28);
-            this.button5.TabIndex = 1;
-            this.button5.Text = "3.2 Korrelation erzeugen";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
-            // 
-            // radioButton1
-            // 
-            this.radioButton1.AutoSize = true;
-            this.radioButton1.Font = new System.Drawing.Font("Calibri", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.radioButton1.Location = new System.Drawing.Point(6, 46);
-            this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Size = new System.Drawing.Size(108, 22);
-            this.radioButton1.TabIndex = 6;
-            this.radioButton1.TabStop = true;
-            this.radioButton1.Text = "Überblenden";
-            this.radioButton1.UseVisualStyleBackColor = true;
-            this.radioButton1.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
-            // 
-            // radioButton2
-            // 
-            this.radioButton2.AutoSize = true;
-            this.radioButton2.Font = new System.Drawing.Font("Calibri", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.radioButton2.Location = new System.Drawing.Point(6, 70);
-            this.radioButton2.Name = "radioButton2";
-            this.radioButton2.Size = new System.Drawing.Size(124, 22);
-            this.radioButton2.TabIndex = 7;
-            this.radioButton2.TabStop = true;
-            this.radioButton2.Text = "Nebeneinander";
-            this.radioButton2.UseVisualStyleBackColor = true;
-            this.radioButton2.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
-            // 
-            // button6
-            // 
-            this.button6.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button6.Location = new System.Drawing.Point(7, 91);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(225, 28);
-            this.button6.TabIndex = 2;
-            this.button6.Text = "3.3 Depthmap generieren";
-            this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
             // Form1
             // 
