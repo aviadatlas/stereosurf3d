@@ -422,6 +422,7 @@ namespace BA_StereoSURF
 
                 t2_pb_mix.Image = bmp;
             }
+            t2_pb_mix.Invalidate();
         }
 
 
@@ -457,6 +458,33 @@ namespace BA_StereoSURF
             }
         }
 
-        
+        private void t2_cb_vectors_CheckedChanged(object sender, EventArgs e)
+        {
+            t2_pb_mix.Invalidate();
+        }
+
+        private void t2_pb_mix_Paint(object sender, PaintEventArgs e)
+        {
+            if (t2_pb_mix.Image != null)
+            {
+                Graphics g = Graphics.FromImage(t2_pb_mix.Image);
+                g.CompositingQuality = CompositingQuality.HighQuality;
+                List<CorrelationInfo> correlationInfos = _imageCorrelation.GetCorrelationInfo(_refFiles.ElementAt(0).Value);
+                if (t2_cb_vectors.Checked && correlationInfos.Count > 0)
+                {                    
+                    Random rand = new Random();
+                    foreach (CorrelationInfo ci in correlationInfos)
+                    {                        
+                        Pen pen = new Pen(Color.FromArgb(63, Color.FromArgb(rand.Next(255), rand.Next(255), rand.Next(255))));
+                        SolidBrush brush = new SolidBrush(Color.FromArgb(pen.Color.R, pen.Color.G, pen.Color.B));
+                        
+                        g.DrawLine(pen, ci.Xa, ci.Ya, ci.Xb, ci.Yb);
+                        g.FillRectangle(brush, ci.Xa - 2, ci.Ya - 1, 5, 3);
+                        g.FillRectangle(brush, ci.Xb - 2, ci.Yb - 1, 5, 3);
+                    }
+                }
+                g.Dispose();
+            }
+        }        
     }
 }
