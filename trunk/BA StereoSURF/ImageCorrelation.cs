@@ -16,9 +16,9 @@ namespace BA_StereoSURF
     {       
         /* statics */
         // accuracy in percent
-        public const float ACCURACY_JOINT       = 0.001f;
-        public const float ACCURACY_ORIENTATION = 0.005f;
-        public const float ACCURACY_SCALE       = 10f;  // total Pixel-difference
+        public const float ACCURACY_JOINT       = 0.0005f;
+        public const float ACCURACY_ORIENTATION = 0.05f;
+        public const float ACCURACY_SCALE       = 15f;  // total Pixel-difference
         public const float ACCURACY_SURF        = 0.10f;
         public const float CLAMP_TOTAL_PEEKS    = 0.075f; // percentage of of width as max linkingvectorlength
 
@@ -27,6 +27,7 @@ namespace BA_StereoSURF
         private List<ExtendedImage> _refImages;
         private Dictionary<ExtendedImage, List<CorrelationInfo>> _correlations;
         private Poly2Tri.PointSet _pointSet;
+        private Dictionary<TriangulationPoint, float> _triLookUp;
 
         /* constructors */
         /// <summary>
@@ -85,10 +86,12 @@ namespace BA_StereoSURF
             {
                 // TEST: Tri
                 TriangulationPoint[] pts = new TriangulationPoint[_correlations[_refImages.ElementAt(0)].Count];
+                _triLookUp = new Dictionary<TriangulationPoint, float>();
                 int n = 0;
                 foreach (CorrelationInfo ci in _correlations[_refImages.ElementAt(0)])
                 {
                     pts[n] = new TriangulationPoint((double)ci.Xa, (double)ci.Ya);
+                    _triLookUp.Add(pts[n], ci.Depth);
                     n++;
                 }                
                 _pointSet = new PointSet(pts.ToList<TriangulationPoint>());
@@ -109,7 +112,7 @@ namespace BA_StereoSURF
                 }
                 catch (Exception e) { System.Diagnostics.Debug.WriteLine("FEHLER: " + e.Message); }
 
-                System.Diagnostics.Debug.WriteLine(_pointSet.Triangles.Count.ToString() + " Dreiecke, " + _pointSet.Points.Count.ToString() + " Punkte");
+                //System.Diagnostics.Debug.WriteLine(_pointSet.Triangles.Count.ToString() + " Dreiecke, " + _pointSet.Points.Count.ToString() + " Punkte");
                 /*
                 try
                 {
@@ -148,52 +151,67 @@ namespace BA_StereoSURF
                     }
                     g.Dispose();
 
-                    // growing 'n stuff
-
-                    // dieser arschlahm
-                    /*
-                    bool blackLeft = false;
-                    do
+                    // render
+                    List<DelaunayTriangle> tmpTriList = _pointSet.Triangles.ToList<DelaunayTriangle>();
+                    foreach (DelaunayTriangle tri in tmpTriList)
                     {
-                        blackLeft = false;
-                        for (int x = 0; x < bmp.Width; x++)
+                        Vector2[] triPoints = new Vector2[3];
+                        float[] triVals = new float[3];
+                        for (int n1 = 0; n1 < 3; n1++)
                         {
-                            for (int y = 0; y < bmp.Height; y++)
-                            {
-                                Color c_xy = bmp.GetPixel(x, y);
-                                if (c_xy == Color.FromArgb(0, 0, 0))
-                                {
-                                    int sum = 0;
-                                    int n = 0;
-                                    if (x + 1 < bmp.Width)
-                                    {
-                                        Color c_r = bmp.GetPixel(x + 1, y);
-                                        if (c_r != Color.FromArgb(0, 0, 0))
-                                        {
-                                            sum += c_r.B;
-                                            n++;
-                                        }
-                                    }
-                                    if (y + 1 < bmp.Height)
-                                    {
-                                        Color c_d = bmp.GetPixel(x, y + 1);
-                                        if (c_d != Color.FromArgb(0, 0, 0))
-                                        {
-                                            sum += c_d.B;
-                                            n++;
-                                        }
-                                    }
-                                    if (n > 0)
-                                        bmp.SetPixel(x, y, Color.FromArgb((int)Math.Round((decimal)(sum / n)), (int)Math.Round((decimal)(sum / n)), (int)Math.Round((decimal)(sum / n))));
-                                    else
-                                        blackLeft = true;
-                                }
-                            }
+                            triPoints[n1] = new Vector2(tri.Points[n1].Xf, tri.Points[n1].Yf);
+                            if (_triLookUp.ContainsKey(tri.Points[n1]))
+                                triVals[n1] = _triLookUp[tri.Points[n1]];
+                            else
+                                triVals[n1] = 0;
                         }
-                    } while (blackLeft);
-                    */
-                    
-                    // probieren wirs mal so
+
+                        if (triVals[0] + triVals[1] + triVals[2] > 0 )
+                        {   // draw this triangle
+                            float minX = float.MaxValue;
+                            float minY = float.MaxValue;
+                            float maxX = float.MinValue;
+                            float maxY = float.MinValue;
+                            for (int pn=0; pn<3; pn++)
+                            {                                
+                                if (tri.Points[pn].Xf < minX)
+                                    minX = tri.Points[pn].Xf;
+                                if (tri.Points[pn].Xf > maxX)
+                                    maxX = tri.Points[pn].Xf;
+                                if (tri.Points[pn].Yf < minY)
+                                    minY = tri.Points[pn].Yf;
+                                if (tri.Points[pn].Yf > maxY)
+                                    maxY = tri.Points[pn].Yf;
+                            }
+
+                            for (int tri_y = (int)Math.Floor(minY); tri_y <= (int)Math.Ceiling(maxY); tri_y++)
+                            {
+                                bool drawn = false;
+                                for (int tri_x = (int)Math.Floor(minX); tri_x <= (int)Math.Ceiling(maxX); tri_x++)
+                                {
+                                    if (InTriangle(new Vector2(tri.Points._0.Xf, tri.Points._0.Yf),
+                                               new Vector2(tri.Points._1.Xf, tri.Points._1.Yf),
+                                               new Vector2(tri.Points._2.Xf, tri.Points._2.Yf),
+                                               new Vector2(tri_x, tri_y)))
+                                    {
+                                        drawn = true;
+                                        if (tri_x < bmp.Width && tri_y < bmp.Height && tri_x >= 0 && tri_y >= 0)
+                                        {
+                                            Color c = ColorInTriangle(new Vector2(tri_x, tri_y), triPoints, triVals);
+                                            if (c.R+c.G+c.B != 0)
+                                                bmp.SetPixel(tri_x, tri_y, c);
+                                        }
+                                    }
+                                    else if (drawn)
+                                    {
+                                        break;
+                                    }
+                                }
+                            }                          
+                        }
+                    }
+                    // growing 'n stuff
+                    /*
                     int blackLeft = bmp.Width*bmp.Height;
                     int [,] bmpVector = new int[bmp.Width,bmp.Height];                    
                     int r = 1;
@@ -203,8 +221,6 @@ namespace BA_StereoSURF
                         foreach (CorrelationInfo ci in _correlations[_refImages.ElementAt(0)].FindAll(delegate (CorrelationInfo thisCI) { return !finished.Contains(thisCI);}))
                         {
                             int blackLeft_cache = blackLeft;
-
-                            //System.Diagnostics.Debug.WriteLine(String.Format("Nächster CP:\tx={0}\ty={1}", ci.Xa, ci.Ya));
                             float d = Math.Abs(ci.Depth);
                             int c = (int)Math.Round(((d - zMin) / (zMax - zMin)) * 254) + 1;
 
@@ -227,19 +243,12 @@ namespace BA_StereoSURF
                                 for (int offsetY = minOffsetY; offsetY < maxOffsetY; offsetY++)
                                 {
                                     if ((bmpVector[(int)ci.Xa + offsetX, (int)ci.Ya + offsetY] == 0) && Math.Sqrt(Math.Pow(offsetX, 2) + Math.Pow(offsetY, 2)) < r)
-                                    {
-                                        //bmp.SetPixel((int)ci.Xa + offsetX, (int)ci.Ya + offsetY, Color.FromArgb(255, c, c, c));
+                                    {                   
                                         bmpVector[(int)ci.Xa + offsetX, (int)ci.Ya + offsetY] = c;
-                                        blackLeft--;
-                                        //System.Diagnostics.Debug.WriteLine(String.Format("Zeichne #{0}:\tx={1}\ty={2}", c, ci.Xa + offsetX, ci.Ya + offsetY));
-                                    }
-                                    else
-                                    {
-                                        //System.Diagnostics.Debug.WriteLine(String.Format("Finde #{0}:\tx={1}\ty={2}", bmp.GetPixel((int)ci.Xa + offsetX, (int)ci.Ya + offsetY).B, ci.Xa + offsetX, ci.Ya + offsetY));
+                                        blackLeft--;                                     
                                     }
                                 }
                             }
-
                             if (blackLeft_cache == blackLeft)
                                 finished.Add(ci);
                         }
@@ -250,6 +259,7 @@ namespace BA_StereoSURF
                     for (int curX = 0; curX < bmp.Width; curX++)
                         for (int curY = 0; curY < bmp.Height; curY++)
                             bmp.SetPixel(curX,curY, Color.FromArgb(bmpVector[curX,curY],bmpVector[curX,curY],bmpVector[curX,curY]));
+                    */
 
                     // draw tri-mesh
                     Graphics g2 = Graphics.FromImage(bmp);
@@ -257,10 +267,12 @@ namespace BA_StereoSURF
                     g2.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
                     foreach (DelaunayTriangle tri in _pointSet.Triangles)
                     {
-                        Pen p = new Pen(Color.FromArgb(11, Color.Red));
+                        Pen p = new Pen(Color.FromArgb(1, Color.White));
                         g2.DrawLine(p, tri.Points[0].Xf, tri.Points[0].Yf, tri.Points[1].Xf, tri.Points[1].Yf);
                         g2.DrawLine(p, tri.Points[1].Xf, tri.Points[1].Yf, tri.Points[2].Xf, tri.Points[2].Yf);
                         g2.DrawLine(p, tri.Points[2].Xf, tri.Points[2].Yf, tri.Points[0].Xf, tri.Points[0].Yf);
+                        g2.FillEllipse(new SolidBrush(Color.Orange), (float)((tri.Points._0.X + tri.Points._1.X + tri.Points._2.X) / 3 - 2),
+                                                                      (float)((tri.Points._0.Y + tri.Points._1.Y + tri.Points._2.Y) / 3 - 2), 4, 4);
                     }
                     g2.Dispose();
                 }
@@ -359,21 +371,103 @@ namespace BA_StereoSURF
             return returnList;
         }
 
+        public static float ValueInTriangle(Vector2 p, Vector2[] points, float[] values)
+        {
+            if (InTriangle(points[0], points[1], points[2], p))
+            {
+                int[] indieces = new int[3];
+                #region static sort indicies
+                if (points[0].Y < points[1].Y && points[0].Y < points[2].Y)
+                {
+                    indieces[0] = 0;
+                    if (points[1].Y < points[2].Y)
+                    {
+                        indieces[1] = 1;
+                        indieces[2] = 2;
+                    }
+                    else
+                    {
+                        indieces[1] = 2;
+                        indieces[2] = 1;
+                    }
+                }
+                else if (points[1].Y < points[0].Y && points[1].Y < points[2].Y)
+                {
+                    indieces[0] = 1;
+                    if (points[0].Y < points[2].Y)
+                    {
+                        indieces[1] = 0;
+                        indieces[2] = 2;
+                    }
+                    else
+                    {
+                        indieces[1] = 2;
+                        indieces[2] = 0;
+                    }
+                }
+                else if (points[2].Y < points[0].Y && points[2].Y < points[1].Y)
+                {
+                    indieces[0] = 2;
+                    if (points[0].Y < points[1].Y)
+                    {
+                        indieces[1] = 0;
+                        indieces[2] = 1;
+                    }
+                    else
+                    {
+                        indieces[1] = 1;
+                        indieces[2] = 0;
+                    }
+                }
+                #endregion
+
+                float r1 = (p.Y - points[indieces[2]].Y) / (points[indieces[0]].Y - points[indieces[2]].Y); ;
+                float edge1_val = ((values[indieces[0]] - values[indieces[2]]) * r1) + values[indieces[2]]; ;
+                float x1 = points[indieces[2]].X + r1 * (points[indieces[0]].X - points[indieces[2]].X);
+                float r2 = (p.Y - points[indieces[1]].Y) / (points[indieces[0]].Y - points[indieces[1]].Y);
+                float edge2_val = ((values[indieces[0]] - values[indieces[1]]) * r2) + values[indieces[1]];
+                float x2 = points[indieces[1]].X + r2 * (points[indieces[0]].X - points[indieces[1]].X);
+                if (p.Y > points[indieces[1]].Y)
+                {
+                    r1 = (p.Y - points[indieces[1]].Y) / (points[indieces[2]].Y - points[indieces[1]].Y);
+                    edge1_val = ((values[indieces[2]] - values[indieces[1]]) * r1) + values[indieces[1]];
+                    x1 = points[indieces[1]].X + r1 * (points[indieces[2]].X - points[indieces[1]].X);
+                    r2 = (p.Y - points[indieces[2]].Y) / (points[indieces[0]].Y - points[indieces[2]].Y);
+                    edge2_val = ((values[indieces[0]] - values[indieces[2]]) * r2) + values[indieces[2]];
+                    x2 = points[indieces[2]].X + r2 * (points[indieces[0]].X - points[indieces[2]].X);
+                }
+                return (p.X - x1) / (x2 - x1) * (edge2_val - edge1_val) + edge1_val;
+            }
+            else
+            {
+                return 0.0f;
+            }
+        }
+        public static Color ColorInTriangle(Vector2 p, Vector2[] points, float[] values)
+        {
+            float v = ValueInTriangle(p, points, values);
+            int c = (int)Math.Round(v);
+            if (c >= 0 && c <= 255)
+                return Color.FromArgb(c, c, c);
+            else 
+                return Color.Transparent;
+        }
+
         public static bool InTriangle(Vector2 A, Vector2 B, Vector2 C, Vector2 P)
         {
-            Vector2 v0 = C - A;
-            Vector2 v1 = B - A;
-            Vector2 v2 = P - A;
-            float[,] p = new float[2, 3];
-            p[0, 0] = Vector2.Dot(v0, v0);
-            p[0, 1] = Vector2.Dot(v0, v1);
-            p[0, 2] = Vector2.Dot(v0, v2);
-            p[1, 0] = Vector2.Dot(v1, v1);
-            p[1, 1] = Vector2.Dot(v1, v2);
-            float invD = 1 / (p[0,0]*p[1,1] - p[0,1]*p[0,1]);
-            float u = (p[1, 1] * p[0, 2] - p[0, 1] * p[1, 2]) * invD;
-            float v = (p[0, 0] * p[1, 2] - p[0, 1] * p[0, 2]) * invD;
-            return (u > 0) && (v > 0) && (u + v < 1);
+            float f0 = CalculateTriangleArea(A, B, C);
+            float f1 = CalculateTriangleArea(A, B, P);
+            float f2 = CalculateTriangleArea(A, P, C);
+            float f3 = CalculateTriangleArea(P, B, C);
+            if (Math.Round(f0) == Math.Round(f1 + f2 + f3))
+                return true;
+            else
+                return false;
+        }
+
+        public static float CalculateTriangleArea(Vector2 a, Vector2 b, Vector2 c)
+        {
+            return Math.Abs(0.5f * (a.X * (b.Y - c.Y) + b.X * (c.Y - a.Y) + c.X * (a.Y - b.Y)));
         }
 
         /* props */ 
