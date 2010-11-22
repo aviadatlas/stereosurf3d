@@ -84,6 +84,17 @@ namespace BA_StereoSURF
         {
             if (_correlations.Count > 0)
             {
+                // calc PODs (peaks of depths - huh how epical^^)
+                float zMin = float.MaxValue;
+                float zMax = float.MinValue;
+                _correlations[_refImages.ElementAt(0)].ForEach((item) =>
+                {
+                    if (item.Depth < zMin)
+                        zMin = item.Depth;
+                    if (item.Depth > zMax)
+                        zMax = item.Depth;
+                });
+
                 // TEST: Tri
                 TriangulationPoint[] pts = new TriangulationPoint[_correlations[_refImages.ElementAt(0)].Count];
                 _triLookUp = new Dictionary<TriangulationPoint, float>();
@@ -126,18 +137,7 @@ namespace BA_StereoSURF
                 if (simple)
                 {
                     // TODO:    Kantenerkennungsdingens muss noch mit rein
-
-                    // calc PODs (peaks of depths - huh how epical^^)
-                    float zMin = float.MaxValue;
-                    float zMax = float.MinValue;
-                    _correlations[_refImages.ElementAt(0)].ForEach((item) =>
-                    {
-                        if (item.Depth < zMin)
-                            zMin = item.Depth;
-                        if (item.Depth > zMax)
-                            zMax = item.Depth;
-                    });
-
+                                        
                     // Draw to bitmap                
                     Graphics g = Graphics.FromImage(bmp);
                     g.FillRectangle(new SolidBrush(Color.Black), 0, 0, bmp.Width - 1f, bmp.Height - 1f);
@@ -271,7 +271,7 @@ namespace BA_StereoSURF
                         g2.DrawLine(p, tri.Points[0].Xf, tri.Points[0].Yf, tri.Points[1].Xf, tri.Points[1].Yf);
                         g2.DrawLine(p, tri.Points[1].Xf, tri.Points[1].Yf, tri.Points[2].Xf, tri.Points[2].Yf);
                         g2.DrawLine(p, tri.Points[2].Xf, tri.Points[2].Yf, tri.Points[0].Xf, tri.Points[0].Yf);
-                        g2.FillEllipse(new SolidBrush(Color.Orange), (float)((tri.Points._0.X + tri.Points._1.X + tri.Points._2.X) / 3 - 2),
+                        g2.FillEllipse(new SolidBrush(Color.FromArgb(2, Color.Orange)), (float)((tri.Points._0.X + tri.Points._1.X + tri.Points._2.X) / 3 - 2),
                                                                       (float)((tri.Points._0.Y + tri.Points._1.Y + tri.Points._2.Y) / 3 - 2), 4, 4);
                     }
                     g2.Dispose();
@@ -371,10 +371,27 @@ namespace BA_StereoSURF
             return returnList;
         }
 
-        public static float ValueInTriangle(Vector2 p, Vector2[] points, float[] values)
+        public static float ValueInTriangle(Vector2 p, Vector2[] points, float[] values/*Origin*/)
         {
             if (InTriangle(points[0], points[1], points[2], p))
             {
+                #region prepare values
+                /*float min = float.MaxValue;
+                float max = float.MinValue;
+                float[] values = new float[valuesOrigin.Length];
+                foreach (float v in valuesOrigin)
+                {
+                    if (v < min)
+                        min = v;
+                    if (v > max)
+                        max = v;
+                }
+                for (int valuesN=0; valuesN<valuesOrigin.Length; valuesN++)
+                {
+                    values[valuesN] = ((valuesOrigin[valuesN] - min) / (max - min)) * 255.0f;
+                }*/
+                #endregion
+
                 int[] indieces = new int[3];
                 #region static sort indicies
                 if (points[0].Y < points[1].Y && points[0].Y < points[2].Y)
