@@ -1,0 +1,206 @@
+
+To see how to create a FiltersPlugin, we will create a new one !
+This new Plugin will be very basic : it add noise on a input image.
+
+
+----------------------------------------------------------------------------------------------------
+1 - Create a new Delphi project :
+     a/ choose the type 'DLL'
+     b/ save it with the name 'FiltersPlugin_Noise.dpr'
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+2 - Copy and add this files in your project :
+     FiltersTutorial/FiltersPlugin_/Delphi/dllInterface.pas
+     FiltersTutorial/FiltersPlugin_/Delphi/main.pas
+     FiltersTutorial/FiltersPlugin_/Delphi/image.pas
+	(all this files are not necessary to create a FilterPlugin, but it can help a lot !)
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+3 - In the project source (the unit with 'library' at the top', add  this lines :
+...
+exports
+  getVersion,
+  createFilter, deleteFilter,
+  run, runCommand,
+  getParametersCount, getParameterName, getParameterHelp,
+  setParameterInteger, setParameterFloat,
+  setParameterBoolean, setParameterString,
+  setParameterImage, setParameterPointer,
+  setParameterImagesCount, setParameterImagesImageAtIndex,
+  getOutputsCount, getOutputName,
+  getOutputImage, getOutputImagesCount, getOutputImagesImageAtIndex,
+  getOutputInteger, getOutputFloat,
+  getOutputArrayPointersCount, getOutputArrayPointersPointerAtIndex,
+  setRegionOfInterest, unsetRegionOfInterest;
+...
+     ->It's all functions exported by our DLL
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+4 - Change the project options to set the destination directory to the location of Filters
+     ->Example : set the destination path to 'C:\FiltersTutorial\Bin' 
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+5 - Build the project
+     ->Actually the new Plugin do nothing, but we can already test it in a Delphi project !
+       (for a final example, you can have a look on the project 'testplugin')
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+6 - Now we will add 2 parameters of our plugin :
+     The parameter 'inImage' : the input image
+     The parameter 'outImage' : the image where we have to draw the result
+     ->it's always a good practice to provide output images as parameters 
+         (of course, when the size of output images can't be known, the filter must create it and provide it as a 'Output')
+     a/ Well, in the unit 'main.pas', add this protected variable :
+...
+  protected
+    _inImageParameter : PBitmap32;
+    _outImageParameter : PBitmap32;
+...
+     b/ Set it to nil in the constructor :
+...
+constructor TFiltersPlugin.Create;
+begin
+  _inImageParameter := nil;
+  _outImageParameter := nil;
+  unsetRegionOfInterest();
+end;
+...
+     c/ Our Plugin has to declare this 2 parameters:
+...
+function TFiltersPlugin.getParametersCount() : Integer;
+begin
+  Result := 2;
+end;
+
+procedure TFiltersPlugin.getParameterName( const aIndex : Integer; var aName : String );
+begin
+  case aIndex of
+  0 : aName := 'inImage';
+  1 : aName := 'outImage';
+  end;
+end;
+
+procedure TFiltersPlugin.getParameterHelp( const aIndex : Integer; var aHelp : String );
+begin
+  case aIndex of
+  0 : aHelp := 'the input image';
+  1 : aHelp := 'the output image (must be of the same size than [inImage])';
+  end;
+end;
+
+procedure TFiltersPlugin.setParameterImage( const aName : String; const aImage : PFBitmap32 );
+begin
+  if aName='inImage' then _inImageParameter := aImage
+  else if aName='outImage' then _outImageParameter := aImage;
+end;
+...
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+7 - Now we do the real job of our plugin : add noise !
+...
+// It's a scholar example, and not a good and fast method !
+procedure TFiltersPlugin.run();
+var
+  x, xMin, xMax, y, yMin, yMax : Integer;
+  pDest : PColor32Array;
+  roi : TFRect;
+  r : Integer;
+begin
+  // if we have input images
+  if (_inImageParameter<>nil) and (_outImageParameter<>nil) then begin
+    // both input images must be of the same size
+    if image.isSameSize( _inImageParameter, _outImageParameter )=True then begin
+      // we start by copy the [inImage] to [outImage]
+      image.copyImageToImage( _inImageParameter, _outImageParameter );
+      // we get the ROI (if ROI=(-1,-1)(-1,-1), then getValidROI return the full image)
+      roi := image.getValidROI( _inImageParameter, _roi );
+      // for each pixel in the ROI
+      xMin := Round( roi.Left );
+      xMax := Round( roi.Right );
+      yMin := Round( roi.Top );
+      yMax := Round( roi.Bottom );
+      pDest := _outImageParameter.Bits;
+      for y:=yMin to yMax do begin
+        for x:=xMin to xMax do begin
+          // sometime we add salt and pepper noise
+          r := Random(2*100);
+          if r=0 then begin
+            pDest^[0] := clBlack32;
+          end else if r=1 then begin
+            pDest^[0] := clWhite32;
+          end;
+          Inc( pDest );
+        end;
+      end;
+    end;
+  end;
+end;
+...
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+8 - We can add a parameter to add more or less noise. 
+     a/ We add the parameter 'scale'
+...
+  protected
+    _scale : Integer;
+...
+     b/ Set it to a default value in the constructor :
+...
+constructor TFiltersPlugin.Create;
+begin
+  _inImageParameter := nil;
+  _outImageParameter := nil;
+  _scale := 100;
+  unsetRegionOfInterest();
+end;
+...
+     c/ Our Plugin has now to declare 3 parameters:
+...
+function TFiltersPlugin.getParametersCount() : Integer;
+begin
+  Result := 3;
+end;
+
+procedure TFiltersPlugin.getParameterName( const aIndex : Integer; var aName : String );
+begin
+  case aIndex of
+  0 : aName := 'inImage';
+  1 : aName := 'outImage';
+  2 : aName := 'scale';
+  end;
+end;
+
+procedure TFiltersPlugin.getParameterHelp( const aIndex : Integer; var aHelp : String );
+begin
+  case aIndex of
+  0 : aHelp := 'the input image';
+  1 : aHelp := 'the output image (must be of the same size than [inImage])';
+  2 : aHelp := 'if scale=100, then for each pixel, there is 1/scale chance to have noise';
+  end;
+end;
+
+procedure TFiltersPlugin.setParameterInteger( const aName : String; const aValue : Int64 );
+begin
+  if aName='scale' then _scale := aValue;
+end;
+...
+     d/ And we use it in our process
+...
+procedure TFiltersPlugin.run();
+  ...
+          r := Random(2*_scale);
+  ...
+end;
+...
+----------------------------------------------------------------------------------------------------
+
+
+by edurand 
+->for any question : filters@edurand.com

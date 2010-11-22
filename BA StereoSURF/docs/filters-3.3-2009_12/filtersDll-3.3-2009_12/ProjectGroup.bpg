@@ -1,0 +1,36 @@
+#------------------------------------------------------------------------------
+VERSION = BWS.01
+#------------------------------------------------------------------------------
+!ifndef ROOT
+ROOT = $(MAKEDIR)\..
+!endif
+#------------------------------------------------------------------------------
+MAKE = $(ROOT)\bin\make.exe -$(MAKEFLAGS) -f$**
+DCC = $(ROOT)\bin\dcc32.exe $**
+BRCC = $(ROOT)\bin\brcc32.exe $**
+#------------------------------------------------------------------------------
+PROJECTS = tutorial1.exe tutorial2.exe tutorial3.exe tutorial4.exe \
+  FiltersPlugin_Noise.dll testplugin.exe
+#------------------------------------------------------------------------------
+default: $(PROJECTS)
+#------------------------------------------------------------------------------
+
+tutorial1.exe: Tutorial1\tutorial1.dpr
+  $(DCC)
+
+tutorial2.exe: Tutorial2\tutorial2.dpr
+  $(DCC)
+
+tutorial3.exe: Tutorial3\tutorial3.dpr
+  $(DCC)
+
+tutorial4.exe: Tutorial4\tutorial4.dpr
+  $(DCC)
+
+FiltersPlugin_Noise.dll: FiltersPlugin_Noise\Src\FiltersPlugin_Noise.dpr
+  $(DCC)
+
+testplugin.exe: TestPlugin\testplugin.dpr
+  $(DCC)
+
+
