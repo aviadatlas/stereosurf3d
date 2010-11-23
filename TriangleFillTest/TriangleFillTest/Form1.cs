@@ -85,7 +85,9 @@ namespace TriangleFillTest
                         for (int init_n = 0; init_n < 3; init_n++)
                         {                            
                             if (MahdiHelper.DoLinesIntersect(edges[init_n], MahdiHelper.Line.V2L(intersections[n], intersections[n + 1]), ref isPts[init_n]))
-                                intersects[init_n] = 1;                            
+                                if (Vector2.Distance(isPts[init_n], edges[init_n].V1) > edges[init_n].Length*LUMPING_SLICE
+                                    && Vector2.Distance(isPts[init_n], edges[init_n].V2) > edges[init_n].Length*LUMPING_SLICE)
+                                    intersects[init_n] = 1;                            
                         }
                     }
                 }
@@ -283,6 +285,7 @@ namespace TriangleFillTest
                     if (intersects)
                         c = Color.FromArgb(80, Color.Green);
                     g.DrawLine(new Pen(c, 2), new System.Drawing.Point((int)intersections[n].X, (int)intersections[n].Y), new System.Drawing.Point((int)intersections[n + 1].X, (int)intersections[n + 1].Y));
+
                 }
 
                 g.FillEllipse(new SolidBrush(Color.Black), intersections[n].X - 2, intersections[n].Y - 2, 5, 5);
@@ -310,6 +313,45 @@ namespace TriangleFillTest
                     g.DrawLine(triPen, pts[2].X, pts[2].Y, pts[1].X, pts[1].Y);
                     g.DrawLine(triPen, pts[0].X, pts[0].Y, pts[2].X, pts[2].Y);
                 }
+            }
+
+            intersections.ForEach((item) =>
+            {
+                g.FillEllipse(new SolidBrush(Color.Black), item.X - 1, item.Y - 1, 3, 3);
+            });
+            intersections.Sort(delegate(Vector2 v1, Vector2 v2) { if (v1.Y < v2.Y) { return 1; } else if (v1.Y > v2.Y) { return -1; } else { return 0; } });
+            List<Vector2> sekanten = new List<Vector2>();
+            for (int n = 0; n < intersections.Count; n++)
+            {
+                if (n + 1 < intersections.Count)
+                {
+                    Color c = Color.FromArgb(80, Color.Blue);
+
+                    bool intersects = false;
+                    foreach (Vector2[] tri in _triangles[(int)numericUpDown1.Value])
+                    {
+                        for (int i = 0; i < 3; i++)
+                        {
+                            int i2 = i + 1;
+                            if (i2 > 2)
+                                i2 = 0;
+
+                            Vector2 isP = new Vector2();
+                            if (MahdiHelper.DoLinesIntersect(MahdiHelper.Line.V2L(tri[i], tri[i2]),
+                                                                MahdiHelper.Line.V2L(intersections[n], intersections[n + 1]), ref isP))
+                            {
+                                g.FillEllipse(new SolidBrush(Color.Red), (int)isP.X - 3, (int)isP.Y - 3, 7, 7);
+                                intersects = true;
+                            }
+                        }
+                    }
+                    if (intersects)
+                        c = Color.FromArgb(80, Color.Green);
+                    g.DrawLine(new Pen(c, 2), new System.Drawing.Point((int)intersections[n].X, (int)intersections[n].Y), new System.Drawing.Point((int)intersections[n + 1].X, (int)intersections[n + 1].Y));
+
+                }
+
+                g.FillEllipse(new SolidBrush(Color.Black), intersections[n].X - 2, intersections[n].Y - 2, 5, 5);
             }
 
             g.Dispose();
