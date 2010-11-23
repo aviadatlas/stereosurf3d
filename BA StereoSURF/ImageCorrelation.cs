@@ -102,7 +102,7 @@ namespace BA_StereoSURF
                 foreach (CorrelationInfo ci in _correlations[_refImages.ElementAt(0)])
                 {
                     pts[n] = new TriangulationPoint((double)ci.Xa, (double)ci.Ya);
-                    _triLookUp.Add(pts[n], ci.Depth);
+                    _triLookUp.Add(pts[n], ((ci.Depth-zMin) / (zMax - zMin)) * 255.0f );
                     n++;
                 }                
                 _pointSet = new PointSet(pts.ToList<TriangulationPoint>());
