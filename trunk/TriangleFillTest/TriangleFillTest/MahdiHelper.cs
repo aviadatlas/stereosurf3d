@@ -19,6 +19,21 @@ static class MahdiHelper
             l.Y2 = (double)v2.Y;
             return l;
         }
+
+        public Vector2 V1
+        {
+            get { Vector2 v = new Vector2((float)X1, (float)Y1); return v; }
+            set { X1 = value.X; Y1 = value.Y; }
+        }
+        public Vector2 V2
+        {
+            get { Vector2 v = new Vector2((float)X2, (float)Y2); return v; }
+            set { X2 = value.X; Y2 = value.Y; }
+        }
+        public float Length
+        {
+            get { return Vector2.Distance(this.V1, this.V2); }
+        }
     }
 
     public static bool InTriangle(Vector2 A, Vector2 B, Vector2 C, Vector2 P)
