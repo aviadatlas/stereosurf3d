@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual C# Express 2005
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TutorialCSharp1", "TutorialCSharp1.csproj", "{90A6999C-35C2-4F31-A5AF-65DAF7A14DFB}"
 EndProject
 Global
