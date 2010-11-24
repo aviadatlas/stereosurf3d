@@ -34,18 +34,51 @@ static class MahdiHelper
         {
             get { return Vector2.Distance(this.V1, this.V2); }
         }
+
+        public MahdiHelper.Line Multiply(float faktor)
+        {
+            Vector2 joint = new Vector2((float)(X2 - X1), (float)(Y2 - Y1));
+            this.V1 -= faktor * joint;
+            this.V2 += faktor * joint;
+            return this;
+        }
     }
 
     public static bool InTriangle(Vector2 A, Vector2 B, Vector2 C, Vector2 P)
     {
-        float f0 = CalculateTriangleArea(A, B, C);
-        float f1 = CalculateTriangleArea(A, B, P);
-        float f2 = CalculateTriangleArea(A, P, C);
-        float f3 = CalculateTriangleArea(P, B, C);
-        if (f0 == (f1 + f2 + f3))
-            return true;
+        float minX = float.MaxValue; 
+        float minY = float.MaxValue;
+        float maxX = float.MinValue;
+        float maxY = float.MinValue;
+
+        Vector2[] v = new Vector2[3] {A,B,C};
+        for (int n=0; n<3; n++)
+        {
+            if ( v[n].X < minX)
+                minX = v[n].X;
+            if ( v[n].Y < minY)
+                minY = v[n].Y;
+            if ( v[n].X > maxX)
+                maxX = v[n].X;
+            if ( v[n].Y > maxY)
+                maxY = v[n].Y;
+        }
+
+        if (P.X >= minX && P.X <= maxX && P.Y >= minY && P.Y <= maxY)
+        {
+            float f0 = CalculateTriangleArea(A, B, C);
+            float f1 = CalculateTriangleArea(A, B, P);
+            float f2 = CalculateTriangleArea(A, P, C);
+            float f3 = CalculateTriangleArea(P, B, C);
+            if (f0 == (f1 + f2 + f3))
+                return true;
+            else
+                return false;
+        }
         else
+        {
             return false;
+        }
     }
 
     public static float CalculateTriangleArea(Vector2 a, Vector2 b, Vector2 c)
@@ -55,6 +88,11 @@ static class MahdiHelper
 
     public static float ValueInTriangle(Vector2 p, Vector2[] points, float[] values)
     {
+        if (points[0].Y == points[1].Y)
+            points[0].Y += 0.000000000001f;
+        if (points[2].Y == points[0].Y || points[2].Y == points[1].Y)
+            points[2].Y -= 0.000000000001f;
+
         if (InTriangle(points[0], points[1], points[2], p))
         {
             int[] indieces = new int[3];

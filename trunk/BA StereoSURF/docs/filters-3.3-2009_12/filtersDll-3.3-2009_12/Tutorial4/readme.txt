@@ -1,1 +1,0 @@
-a tutorial in Borland Delphi (v7)
