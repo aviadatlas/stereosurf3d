@@ -38,9 +38,15 @@
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.setAToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setAToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.setBToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // pictureBox1
@@ -145,6 +151,51 @@
             this.label3.TabIndex = 9;
             this.label3.Text = "label3";
             // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.setAToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(999, 24);
+            this.menuStrip1.TabIndex = 10;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // setAToolStripMenuItem
+            // 
+            this.setAToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.setAToolStripMenuItem1,
+            this.setBToolStripMenuItem,
+            this.setCToolStripMenuItem});
+            this.setAToolStripMenuItem.Name = "setAToolStripMenuItem";
+            this.setAToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
+            this.setAToolStripMenuItem.Text = "Settings";
+            // 
+            // setAToolStripMenuItem1
+            // 
+            this.setAToolStripMenuItem1.Name = "setAToolStripMenuItem1";
+            this.setAToolStripMenuItem1.ShortcutKeyDisplayString = "";
+            this.setAToolStripMenuItem1.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.A)));
+            this.setAToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.setAToolStripMenuItem1.Text = "Set A";
+            this.setAToolStripMenuItem1.Click += new System.EventHandler(this.setAToolStripMenuItem1_Click);
+            // 
+            // setBToolStripMenuItem
+            // 
+            this.setBToolStripMenuItem.Name = "setBToolStripMenuItem";
+            this.setBToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.B)));
+            this.setBToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.setBToolStripMenuItem.Text = "Set B";
+            this.setBToolStripMenuItem.Click += new System.EventHandler(this.setBToolStripMenuItem_Click);
+            // 
+            // setCToolStripMenuItem
+            // 
+            this.setCToolStripMenuItem.Name = "setCToolStripMenuItem";
+            this.setCToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
+            this.setCToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.setCToolStripMenuItem.Text = "Set C";
+            this.setCToolStripMenuItem.Click += new System.EventHandler(this.setCToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -160,11 +211,15 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.menuStrip1);
+            this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -182,6 +237,11 @@
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem setAToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setAToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem setBToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setCToolStripMenuItem;
     }
 }
 

@@ -1,1 +1,0 @@
-all executable are ready in the \Bin directory

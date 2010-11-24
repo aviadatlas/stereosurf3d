@@ -10,7 +10,7 @@ using System.Threading;
 using AForge;
 using AForge.Imaging.Filters;
 
-using Mitov.VisionLab;
+//using Mitov.VisionLab;
 
 using OpenSURFcs;
 
@@ -38,7 +38,8 @@ namespace BA_StereoSURF
         // constructors
         public ExtendedImage(Form1 root, string path)
         {
-            Filters.initialize();
+            
+            //Filters.initialize();
 
             __root = root;
 
@@ -51,7 +52,7 @@ namespace BA_StereoSURF
 
         ~ExtendedImage()
         {
-            Filters.unInitialize();
+            //Filters.unInitialize();
         }
 
 

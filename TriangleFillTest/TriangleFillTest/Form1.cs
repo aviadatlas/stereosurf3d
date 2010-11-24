@@ -29,12 +29,12 @@ namespace TriangleFillTest
         {
             InitializeComponent();
             
-            values[0] = 240.8f;
-            values[1] = 34.4f;
+            values[0] = 230.5f;
+            values[1] = 40.5f;
             values[2] = 160.9f;            
-            points[2] = new Vector2(250, 50);
-            points[1] = new Vector2(10, 350);
-            points[0] = new Vector2(410, 380);
+            points[2] = new Vector2(120, 350);
+            points[1] = new Vector2(380, 35);
+            points[0] = new Vector2(20, 110);
 
             intersections = new List<Vector2>();
 
@@ -60,9 +60,22 @@ namespace TriangleFillTest
             drawIt();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        public void reinit()
         {
-            // divide & conquer
+            _points = new List<List<Vector2>>();
+            _triangles = new List<List<Vector2[]>>();
+            _points.Add(new List<Vector2>(points));
+            List<Vector2[]> triLevel0 = new List<Vector2[]>();
+            triLevel0.Add(points);
+            _triangles.Add(triLevel0);
+            numericUpDown1.Value = 0;
+            numericUpDown1.Maximum = 0;
+            divide();
+        }
+
+        private void divide()
+        {
+// divide & conquer
             intersections.Sort(delegate(Vector2 v1, Vector2 v2) { if (v1.Y < v2.Y) { return 1; } else if (v1.Y > v2.Y) { return -1; } else { return 0; } });
 
             List<Vector2[]> triNewLevel = new List<Vector2[]>();
@@ -112,7 +125,7 @@ namespace TriangleFillTest
                             MahdiHelper.Line otrhoLine = MahdiHelper.Line.V2L(cutMid, cutMid + ortho);
                             // 3. Prüfen ob Schnittpunkt von Mittelpunkt und Orthogonalen Vektor auf gegenüberliegender Kante ist                                                                
                             Vector2 S = new Vector2();
-                            if (MahdiHelper.DoLinesIntersect(edges[pN3], otrhoLine, ref S))
+                            if (MahdiHelper.DoLinesIntersect(edges[pN3], otrhoLine.Multiply(100000), ref S))
                             {   // Gegenkante wird geschnitten
                                 // S,isP01,isP12    
                                 // S,tri[0],isP01
@@ -122,17 +135,25 @@ namespace TriangleFillTest
                                 triNewLevel.Add(new Vector2[3] { S, tri[pN1], isPts[pN1] });
                                 triNewLevel.Add(new Vector2[3] { S, tri[pN3], isPts[pN2] });
                             }
-                            else if (MahdiHelper.DoLinesIntersect(edges[pN1], otrhoLine, ref S))
+                            else if (MahdiHelper.DoLinesIntersect(edges[pN1], otrhoLine.Multiply(100000), ref S))
                             {   // tri[0],isP12,isP01
                                 // tri[0],tri[2],isP12
                                 triNewLevel.Add(new Vector2[3] { tri[pN1], isPts[pN2], isPts[pN1] });
                                 triNewLevel.Add(new Vector2[3] { tri[pN1], tri[pN3], isPts[pN2] });
                             }
-                            else if (MahdiHelper.DoLinesIntersect(edges[pN2], otrhoLine, ref S))
+                            else if (MahdiHelper.DoLinesIntersect(edges[pN2], otrhoLine.Multiply(100000), ref S))
                             {   // tri[2],isP12,isP01
                                 // tri[2],tri[0],isP01
                                 triNewLevel.Add(new Vector2[3] { tri[pN3], isPts[pN1], isPts[pN2] });
                                 triNewLevel.Add(new Vector2[3] { tri[pN3], tri[pN1], isPts[pN1] });
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine("Hier fehlt was!");
+                                System.Diagnostics.Debug.WriteLine(String.Format("CutMid: {0},{1}", cutMid.X, cutMid.Y));
+                                System.Diagnostics.Debug.WriteLine(String.Format("s1: {0},{1}", isPts[pN1].X, isPts[pN1].Y));
+                                System.Diagnostics.Debug.WriteLine(String.Format("s2: {0},{1}", isPts[pN2].X, isPts[pN2].Y));
+                                System.Diagnostics.Debug.WriteLine(String.Format("Ortho: {0},{1}", ortho.X, ortho.Y));
                             }
                             ptsNewLevel.Add(isPts[pN1]);
                             ptsNewLevel.Add(isPts[pN2]);
@@ -200,6 +221,11 @@ namespace TriangleFillTest
                                      
             
             //draw2nd();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            divide();
         }
 
         private void drawIt()
@@ -315,6 +341,8 @@ namespace TriangleFillTest
                 }
             }
 
+            
+
             intersections.ForEach((item) =>
             {
                 g.FillEllipse(new SolidBrush(Color.Black), item.X - 1, item.Y - 1, 3, 3);
@@ -351,6 +379,12 @@ namespace TriangleFillTest
 
                 }
 
+                foreach (Vector2 pt in _points[(int)numericUpDown1.Value])
+                {
+                    g.FillEllipse(new SolidBrush(Color.FromArgb(140, Color.Orange)), pt.X - 1, pt.Y - 1, 3, 3);
+                    g.DrawEllipse(new Pen(Color.FromArgb(70, Color.Green)), pt.X - 2, pt.Y - 2, 5, 5);
+                }
+
                 g.FillEllipse(new SolidBrush(Color.Black), intersections[n].X - 2, intersections[n].Y - 2, 5, 5);
             }
 
@@ -361,8 +395,7 @@ namespace TriangleFillTest
         }
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
-        {
-            
+        {            
             if (MahdiHelper.InTriangle(points[1], points[0], points[2], new Vector2(e.X, e.Y)))
                 label1.BackColor = Color.Yellow;
             else
@@ -371,6 +404,17 @@ namespace TriangleFillTest
             float v = MahdiHelper.ValueInTriangle(new Vector2(e.X, e.Y), points, values);
             
             label1.Text = String.Format("x:{0}\ny:{1}\nv:{2}", e.X, e.Y, v);
+
+            if (set >= 0)
+            {
+                points[set] = new Vector2(e.X, e.Y);
+                //set = -1;
+                label2.Text = "";
+                reinit();
+                drawIt();
+                draw2nd();
+
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -402,7 +446,9 @@ namespace TriangleFillTest
                 points[set] = new Vector2(e.X, e.Y);
                 //set = -1;
                 label2.Text = "";
+                reinit();
                 drawIt();
+                draw2nd();
                 
             }
         }
@@ -411,6 +457,54 @@ namespace TriangleFillTest
         {
             label3.Text = String.Format("{0} tris\n{1} pts", _triangles[(int)numericUpDown1.Value].Count, _points[(int)numericUpDown1.Value].Count);
             draw2nd();
+        }
+
+        private void setAToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (!setAToolStripMenuItem.Checked)
+            {
+                setAToolStripMenuItem.Checked = true;
+                set = 0;
+                label2.Text = "Setze A";
+            }
+            else
+            {
+                setAToolStripMenuItem.Checked = false;
+                set = -1;
+                label2.Text = "";
+            }
+        }
+
+        private void setBToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!setBToolStripMenuItem.Checked)
+            {
+                setBToolStripMenuItem.Checked = true;
+                set = 1;
+                label2.Text = "Setze B";
+            }
+            else
+            {
+                setBToolStripMenuItem.Checked = false;
+                set = -1;
+                label2.Text = "";
+            }
+        }
+
+        private void setCToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!setCToolStripMenuItem.Checked)
+            {
+                setCToolStripMenuItem.Checked = true;
+                set = 2;
+                label2.Text = "Setze C";
+            }
+            else
+            {
+                setCToolStripMenuItem.Checked = false;
+                set = -1;
+                label2.Text = "";
+            }
         }
     }
 }

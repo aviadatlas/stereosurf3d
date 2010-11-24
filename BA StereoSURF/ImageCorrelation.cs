@@ -21,11 +21,13 @@ namespace BA_StereoSURF
         public const float ACCURACY_SCALE       = 15f;  // total Pixel-difference
         public const float ACCURACY_SURF        = 0.10f;
         public const float CLAMP_TOTAL_PEEKS    = 0.075f; // percentage of of width as max linkingvectorlength
+        public const float CLAMP_TOTAL_LOWS     = 0.01f; // percentage of of width as max linkingvectorlength (!high values cutting the background!)
 
         /* members */
         private ExtendedImage _baseImage;
         private List<ExtendedImage> _refImages;
         private Dictionary<ExtendedImage, List<CorrelationInfo>> _correlations;
+        private Dictionary<ExtendedImage, Vector2> _correlationsDirection;
         private Poly2Tri.PointSet _pointSet;
         private Dictionary<TriangulationPoint, float> _triLookUp;
 
@@ -112,10 +114,40 @@ namespace BA_StereoSURF
                     double cur_x = (double)_baseImage.Image.Width * ((double)div / 20);
                     double cur_y = (double)_baseImage.Image.Height * ((double)div / 20);
 
-                    _pointSet.Points.Add(new TriangulationPoint(cur_x, 0));
-                    _pointSet.Points.Add(new TriangulationPoint(cur_x, (double)_baseImage.Image.Height));
-                    _pointSet.Points.Add(new TriangulationPoint(0, cur_y));
-                    _pointSet.Points.Add(new TriangulationPoint((double)_baseImage.Image.Width, cur_y));
+                    // search closest point and get it's value
+                    // perhaps I rather should try such normal-vector plan like in tri-intersection
+                    TriangulationPoint[] tp_set = new TriangulationPoint[4] {
+                        new TriangulationPoint(cur_x, 0),
+                        new TriangulationPoint(cur_x, (double)_baseImage.Image.Height),
+                        new TriangulationPoint(0, cur_y),
+                        new TriangulationPoint((double)_baseImage.Image.Width, cur_y)
+                    };
+
+                    TriangulationPoint[] tp_closest = new TriangulationPoint[4] {
+                        new TriangulationPoint(double.MaxValue, double.MaxValue),
+                        new TriangulationPoint(double.MaxValue, double.MaxValue),
+                        new TriangulationPoint(double.MaxValue, double.MaxValue),
+                        new TriangulationPoint(double.MaxValue, double.MaxValue)
+                    };
+                    foreach (TriangulationPoint tp in _triLookUp.Keys)
+                    {
+                        for (int tp_n = 0; tp_n < 4; tp_n++)
+                        {
+                            double distance1 = TriangulationPointDistance(tp_closest[tp_n], tp_set[tp_n]);
+                            double distance2 = TriangulationPointDistance(tp, tp_set[tp_n]);
+                            if (double.IsInfinity(distance1) || distance1 < distance2)
+                            {
+                                tp_closest[tp_n] = tp;
+                            }
+                        }
+                    }
+
+                    for (int tp_n1 = 0; tp_n1 < 4; tp_n1++)
+                    {
+                        _pointSet.Points.Add(tp_set[tp_n1]);
+                        if (_triLookUp.ContainsKey(tp_closest[tp_n1]))
+                            _triLookUp.Add(tp_set[tp_n1], _triLookUp[tp_closest[tp_n1]]);
+                    }
                 }
                 try
                 {
@@ -271,7 +303,7 @@ namespace BA_StereoSURF
                         g2.DrawLine(p, tri.Points[0].Xf, tri.Points[0].Yf, tri.Points[1].Xf, tri.Points[1].Yf);
                         g2.DrawLine(p, tri.Points[1].Xf, tri.Points[1].Yf, tri.Points[2].Xf, tri.Points[2].Yf);
                         g2.DrawLine(p, tri.Points[2].Xf, tri.Points[2].Yf, tri.Points[0].Xf, tri.Points[0].Yf);
-                        g2.FillEllipse(new SolidBrush(Color.FromArgb(2, Color.Orange)), (float)((tri.Points._0.X + tri.Points._1.X + tri.Points._2.X) / 3 - 2),
+                        g2.FillEllipse(new SolidBrush(Color.FromArgb(15, Color.Orange)), (float)((tri.Points._0.X + tri.Points._1.X + tri.Points._2.X) / 3 - 2),
                                                                       (float)((tri.Points._0.Y + tri.Points._1.Y + tri.Points._2.Y) / 3 - 2), 4, 4);
                     }
                     g2.Dispose();
@@ -344,10 +376,46 @@ namespace BA_StereoSURF
 
             }
 
-            // filter total Peeks            
+            // filter those dismatching the general correlation-vector
+            Vector3 sumVector_pos = new Vector3(0, 0, 0);
+            int cntVector_pos = 0;
+            Vector3 sumVector_neg = new Vector3(0, 0, 0);
+            int cntVector_neg = 0;
+            returnList.ForEach((item) => {
+                if (item.Joint.X > 0)
+                {
+                    sumVector_pos += item.Joint;
+                    cntVector_pos++;
+                }
+                else if (item.Joint.X < 0)
+                {
+                    sumVector_neg += item.Joint;
+                    cntVector_neg++;
+                }
+            });
+            Vector3 jointAverage = new Vector3();
+            if (cntVector_pos > cntVector_neg)
+                jointAverage = new Vector3(sumVector_pos.X / cntVector_pos,sumVector_pos.Y / cntVector_pos,sumVector_pos.Z / cntVector_pos);
+            else if (cntVector_neg > cntVector_pos)
+                jointAverage = new Vector3(sumVector_neg.X / cntVector_neg, sumVector_neg.Y / cntVector_neg, sumVector_neg.Z / cntVector_neg);
+            else
+            {
+                jointAverage = sumVector_pos + sumVector_neg;
+                int cntTotal = cntVector_pos + cntVector_neg;
+                jointAverage = new Vector3(jointAverage.X/cntTotal, jointAverage.Y/cntTotal, jointAverage.Z/cntTotal);
+            }
+
+            List<CorrelationInfo> tmpList2 = returnList.FindAll(delegate(CorrelationInfo ci)
+            {
+                return ( ( ci.Joint.X > 0 && jointAverage.X > 0) || (ci.Joint.X < 0 && jointAverage.X < 0) );
+            });
+
+            // filter total Peeks & Lows
             // TODO:    should depend on camera matrices
-            return returnList.FindAll(delegate (CorrelationInfo ci) {
-                return (Math.Abs(ci.Xa - ci.Xb) < _baseImage.Image.Width * ImageCorrelation.CLAMP_TOTAL_PEEKS);
+            // TODO:    implement total lows
+            return tmpList2.FindAll(delegate (CorrelationInfo ci) {
+                return (Math.Abs(ci.Xa - ci.Xb) < _baseImage.Image.Width * ImageCorrelation.CLAMP_TOTAL_PEEKS) && 
+                       (Math.Abs(ci.Xa - ci.Xb) > _baseImage.Image.Width * ImageCorrelation.CLAMP_TOTAL_LOWS);
             });
             /*
             float sum = 0;
@@ -373,6 +441,11 @@ namespace BA_StereoSURF
 
         public static float ValueInTriangle(Vector2 p, Vector2[] points, float[] values/*Origin*/)
         {
+            if (points[0].Y == points[1].Y)
+                points[0].Y += 0.000000000001f;
+            if (points[2].Y == points[0].Y || points[2].Y == points[1].Y)
+                points[2].Y -= 0.000000000001f;
+
             if (InTriangle(points[0], points[1], points[2], p))
             {
                 #region prepare values
@@ -485,6 +558,11 @@ namespace BA_StereoSURF
         public static float CalculateTriangleArea(Vector2 a, Vector2 b, Vector2 c)
         {
             return Math.Abs(0.5f * (a.X * (b.Y - c.Y) + b.X * (c.Y - a.Y) + c.X * (a.Y - b.Y)));
+        }
+
+        public static double TriangulationPointDistance(TriangulationPoint p1, TriangulationPoint p2)
+        {
+            return Math.Sqrt(Math.Pow(p2.X - p1.X, 2) + Math.Pow(p2.Y - p1.Y, 2));
         }
 
         /* props */ 
