@@ -506,5 +506,12 @@ namespace TriangleFillTest
                 label2.Text = "";
             }
         }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            Form2 f2 = new Form2();
+            f2.Show();
+
+        }
     }
 }
