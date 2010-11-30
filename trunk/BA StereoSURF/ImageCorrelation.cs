@@ -306,6 +306,7 @@ namespace BA_StereoSURF
                         g2.FillEllipse(new SolidBrush(Color.FromArgb(15, Color.Orange)), (float)((tri.Points._0.X + tri.Points._1.X + tri.Points._2.X) / 3 - 2),
                                                                       (float)((tri.Points._0.Y + tri.Points._1.Y + tri.Points._2.Y) / 3 - 2), 4, 4);
                     }
+
                     g2.Dispose();
                 }
                 else

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using Microsoft.Xna.Framework;
 
 static class MahdiHelper
@@ -86,12 +87,46 @@ static class MahdiHelper
         return Math.Abs(0.5f * (a.X * (b.Y - c.Y) + b.X * (c.Y - a.Y) + c.X * (a.Y - b.Y)));
     }
 
+    public static Vector2 GetJoint(Vector2 v1, Vector2 v2)
+    {
+        return new Vector2(v2.X - v1.X, v2.Y - v1.Y);
+    }
+
     public static float ValueInTriangle(Vector2 p, Vector2[] points, float[] values)
     {
         if (points[0].Y == points[1].Y)
-            points[0].Y += 0.000000000001f;
-        if (points[2].Y == points[0].Y || points[2].Y == points[1].Y)
-            points[2].Y -= 0.000000000001f;
+        {
+            if (points[2].Y < points[0].Y)
+                points[0].Y++;
+            else
+                points[0].Y--;
+
+            if (points[0].X < points[1].X)
+            {
+                points[0].X--;
+                points[1].X++;
+            }
+            else
+            {
+                points[0].X++;
+                points[1].X--;
+            }
+
+        }
+        if (points[2].Y == points[1].Y)
+        {
+            if (points[0].Y < points[2].Y)
+                points[2].Y++;
+            else
+                points[2].Y--;
+        }
+        if (points[2].Y == points[0].Y)
+        {
+            if (points[1].Y < points[2].Y)
+                points[2].Y++;
+            else
+                points[2].Y--;
+        }
 
         if (InTriangle(points[0], points[1], points[2], p))
         {
@@ -156,7 +191,10 @@ static class MahdiHelper
                 edge2_val = ((values[indieces[0]] - values[indieces[2]]) * r2) + values[indieces[2]];
                 x2 = points[indieces[2]].X + r2 * (points[indieces[0]].X - points[indieces[2]].X);
             }
-            //System.Diagnostics.Debug.WriteLine(String.Format("p1:{0}\tp2:{1}\tp3:{2}", indieces[0], indieces[1], indieces[2]));
+            
+            if (float.IsNaN(r1) || float.IsNaN(r2))
+                System.Diagnostics.Debug.WriteLine(String.Format("p:{6},{7}\tp1:{0},{1}\tp2:{2},{3}\tp3:{4},{5}", points[0].X,points[0].Y,points[1].X,points[1].Y,points[2].X,points[2].Y,p.X,p.Y));
+
             return (p.X - x1) / (x2 - x1) * (edge2_val - edge1_val) + edge1_val;
         }
         else
@@ -265,5 +303,15 @@ static class MahdiHelper
             if (v < min)
                 min = v;
         return min;
+    }
+
+    public static Color ColorInTriangle(Vector2 p, Vector2[] points, float[] values)
+    {
+        float v = ValueInTriangle(p, points, values);
+        int c = (int)Math.Round(v);
+        if (c >= 0 && c <= 255)
+            return Color.FromArgb(c, c, c);
+        else
+            return Color.Transparent;
     }
 }
