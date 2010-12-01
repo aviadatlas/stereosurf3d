@@ -267,7 +267,25 @@ namespace TriangleFillTest
 
         private static void TriangulateByIntersection(List<MahdiHelper.Line> intersectingLines, ref PointSet pointSet)
         {
+            foreach (DelaunayTriangle dTri in pointSet.Triangles)
+            {
+                Vector2[] tri = new Vector2[3] {    new Vector2(dTri.Points[0].Xf, dTri.Points[0].Yf),
+                                                    new Vector2(dTri.Points[1].Xf, dTri.Points[1].Yf),
+                                                    new Vector2(dTri.Points[2].Xf, dTri.Points[2].Yf)};
+                for (int i = 0; i < 3; i++)
+                {
+                    int i2 = i + 1;
+                    if (i2 > 2)
+                        i2 = 0;
 
+                    Vector2 isP = new Vector2();
+                    if (MahdiHelper.DoLinesIntersect(   MahdiHelper.Line.V2L(tri[i], tri[i2]),
+                                                        MahdiHelper.Line.V2L(_intersections[n], _intersections[n + 1]), ref isP))
+                    {
+
+                    }
+                }
+            }
         }
     }
 }
