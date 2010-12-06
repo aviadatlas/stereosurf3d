@@ -267,25 +267,52 @@ namespace TriangleFillTest
 
         private static void TriangulateByIntersection(List<MahdiHelper.Line> intersectingLines, ref PointSet pointSet)
         {
+            Dictionary<DelaunayTriangle, List<Vector2>> triIntersection = new Dictionary<DelaunayTriangle, List<Vector2>>();
             foreach (DelaunayTriangle dTri in pointSet.Triangles)
             {
+                triIntersection.Add(dTri, new List<Vector2>());
                 Vector2[] tri = new Vector2[3] {    new Vector2(dTri.Points[0].Xf, dTri.Points[0].Yf),
                                                     new Vector2(dTri.Points[1].Xf, dTri.Points[1].Yf),
                                                     new Vector2(dTri.Points[2].Xf, dTri.Points[2].Yf)};
+                
+                MahdiHelper.BoundingBox2D triBB = new MahdiHelper.BoundingBox2D();
+                triBB.AddPoints(tri.ToList<Vector2>());
+
+                List<MahdiHelper.Line> relevantIntersecions = intersectingLines.FindAll(delegate(MahdiHelper.Line thisLine)
+                {
+                    if (triBB.IntersectsBoundingBox(thisLine.BoundingBox2D))
+                        return true;
+                    else
+                        return false;
+                });
+
                 for (int i = 0; i < 3; i++)
                 {
                     int i2 = i + 1;
                     if (i2 > 2)
                         i2 = 0;
-
-                    Vector2 isP = new Vector2();
-                    if (MahdiHelper.DoLinesIntersect(   MahdiHelper.Line.V2L(tri[i], tri[i2]),
-                                                        MahdiHelper.Line.V2L(_intersections[n], _intersections[n + 1]), ref isP))
+                    foreach (MahdiHelper.Line line in relevantIntersecions)
                     {
-
+                        Vector2 isP = new Vector2();
+                        if (MahdiHelper.DoLinesIntersect( line, MahdiHelper.Line.V2L(tri[i], tri[i2]), ref isP))
+                        {
+                            triIntersection[dTri].Add(isP);
+                        }
                     }
                 }
+                System.Diagnostics.Debug.WriteLine(String.Format("Tri: \tA({0},{1})\tB({2},{3})\tC({4},{5})\thas got {6} intersections",
+                    tri[0].X, tri[0].Y, tri[1].X, tri[1].Y, tri[2].X, tri[2].Y, triIntersection[dTri].Count));
             }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            List<MahdiHelper.Line> iLines = new List<MahdiHelper.Line>();
+            for (int n = 0; n < _intersections.Count - 1; n++)
+            {
+                iLines.Add(MahdiHelper.Line.V2L(_intersections[n], _intersections[n + 1]));
+            }
+            TriangulateByIntersection(iLines, ref _pointSet);
         }
     }
 }
