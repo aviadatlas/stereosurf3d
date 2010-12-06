@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Drawing;
+using System.Collections;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
 static class MahdiHelper
@@ -11,25 +13,40 @@ static class MahdiHelper
         public double Y1;
         public double Y2;
 
+        private bool _recalcedBB;
+        private BoundingBox2D _bb;
+
+        private void recalcBB()
+        {
+            _bb = new BoundingBox2D();
+            _bb.AddPoint(new Vector2((float)X1,(float)Y1));
+            _bb.AddPoint(new Vector2((float)X2,(float)Y2));
+            _recalcedBB = true;
+        }
+
         public static Line V2L(Vector2 v1, Vector2 v2)
         {
             Line l = new Line();
             l.X1 = (double)v1.X;
             l.X2 = (double)v2.X;
             l.Y1 = (double)v1.Y;
-            l.Y2 = (double)v2.Y;
+            l.Y2 = (double)v2.Y;            
             return l;
         }
 
+        public MahdiHelper.BoundingBox2D BoundingBox2D
+        {
+            get { if (!_recalcedBB) { recalcBB(); } return _bb; }
+        }
         public Vector2 V1
         {
             get { Vector2 v = new Vector2((float)X1, (float)Y1); return v; }
-            set { X1 = value.X; Y1 = value.Y; }
+            set { X1 = value.X; Y1 = value.Y; _recalcedBB = false; }
         }
         public Vector2 V2
         {
             get { Vector2 v = new Vector2((float)X2, (float)Y2); return v; }
-            set { X2 = value.X; Y2 = value.Y; }
+            set { X2 = value.X; Y2 = value.Y; _recalcedBB = false; }
         }
         public float Length
         {
@@ -41,8 +58,84 @@ static class MahdiHelper
             Vector2 joint = new Vector2((float)(X2 - X1), (float)(Y2 - Y1));
             this.V1 -= faktor * joint;
             this.V2 += faktor * joint;
+            _recalcedBB = false;
             return this;
         }
+    }
+
+    public struct BoundingBox2D
+    {
+        private double _minX;
+        private double _minY;
+        private double _maxX;
+        private double _maxY;
+
+        private bool _calced;
+        private List<Vector2> _points;
+
+        public double Area { get { return (this.MaxX - this.MinX) * (this.MaxY - this.MinY); } }
+        public List<Vector2> Points { get { return _points; } }
+        public double MinX { get { if (!_calced) { recalc(); } return _minX; } }
+        public double MinY { get { if (!_calced) { recalc(); } return _minY; } }
+        public double MaxX { get { if (!_calced) { recalc(); } return _maxX; } }
+        public double MaxY { get { if (!_calced) { recalc(); } return _maxY; } }
+
+        public void AddPoint(Vector2 pt)
+        {
+            if (_points == null)
+                _points = new List<Vector2>();
+            _calced = false;
+            _points.Add(pt);
+        }
+        public void AddPoints(List<Vector2> pts)
+        {
+            if (_points == null)
+                _points = new List<Vector2>();
+            _calced = false;
+            _points.AddRange(pts);
+        }
+        public void Clear()
+        {
+            _points = new List<Vector2>();
+            _calced = false;
+            _minX = double.MaxValue;
+            _minY = double.MaxValue;
+            _maxX = double.MinValue;
+            _maxY = double.MinValue;
+        }
+
+        public bool IntersectsBoundingBox(MahdiHelper.BoundingBox2D bb)
+        {
+            foreach (Vector2 pt in bb.Points)
+            {
+                if (pt.X >= this.MinX && pt.Y >= this.MinY
+                    && pt.X <= this.MaxX && pt.Y <= this.MaxY)
+                    return true;
+            }
+            return false;
+        }
+
+        private void recalc()
+        {
+            _minX = double.MaxValue;
+            _minY = double.MaxValue;
+            _maxX = double.MinValue;
+            _maxY = double.MinValue;
+            foreach (Vector2 pt in _points)
+            {
+                if (pt.X < _minX)
+                    _minX = pt.X;
+                if (pt.Y < _minY)
+                    _minY = pt.Y;
+                if (pt.X > _maxX)
+                    _maxX = pt.X;
+                if (pt.Y > _maxY)
+                    _maxY = pt.Y;
+            }
+            _calced = true;
+        }
+            // nadler:iabmdr1
+            // hidden & dangerous
     }
 
     public static bool InTriangle(Vector2 A, Vector2 B, Vector2 C, Vector2 P)
@@ -214,6 +307,49 @@ static class MahdiHelper
     /// <returns></returns>
     /// <remarks>See http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline2d/</remarks>
     public static bool DoLinesIntersect(Line L1, Line L2, ref Vector2 ptIntersection)
+    {
+        // Denominator for ua and ub are the same, so store this calculation
+        double d =
+           (L2.Y2 - L2.Y1) * (L1.X2 - L1.X1)
+           -
+           (L2.X2 - L2.X1) * (L1.Y2 - L1.Y1);
+
+        //n_a and n_b are calculated as seperate values for readability
+        double n_a =
+           (L2.X2 - L2.X1) * (L1.Y1 - L2.Y1)
+           -
+           (L2.Y2 - L2.Y1) * (L1.X1 - L2.X1);
+
+        double n_b =
+           (L1.X2 - L1.X1) * (L1.Y1 - L2.Y1)
+           -
+           (L1.Y2 - L1.Y1) * (L1.X1 - L2.X1);
+
+        // Make sure there is not a division by zero - this also indicates that
+        // the lines are parallel.  
+        // If n_a and n_b were both equal to zero the lines would be on top of each 
+        // other (coincidental).  This check is not done because it is not 
+        // necessary for this implementation (the parallel check accounts for this).
+        if (d == 0)
+            return false;
+
+        // Calculate the intermediate fractional point that the lines potentially intersect.
+        double ua = n_a / d;
+        double ub = n_b / d;
+
+        // The fractional point will be between 0 and 1 inclusive if the lines
+        // intersect.  If the fractional calculation is larger than 1 or smaller
+        // than 0 the lines would need to be longer to intersect.
+        if (ua >= 0d && ua <= 1d && ub >= 0d && ub <= 1d)
+        {
+            ptIntersection.X = (float)(L1.X1 + (ua * (L1.X2 - L1.X1)));
+            ptIntersection.Y = (float)(L1.Y1 + (ua * (L1.Y2 - L1.Y1)));
+            return true;
+        }
+        return false;
+    }
+
+    public static bool DoLinesIntersect2(Line L1, Line L2)
     {
         // Denominator for ua and ub are the same, so store this calculation
         double d =
