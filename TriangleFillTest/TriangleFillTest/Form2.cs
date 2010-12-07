@@ -267,9 +267,18 @@ namespace TriangleFillTest
 
         private static void TriangulateByIntersection(List<MahdiHelper.Line> intersectingLines, ref PointSet pointSet)
         {
+            List<TriangulationPoint> newPointSet = new List<TriangulationPoint>();
+
             Dictionary<DelaunayTriangle, List<Vector2>> triIntersection = new Dictionary<DelaunayTriangle, List<Vector2>>();
             foreach (DelaunayTriangle dTri in pointSet.Triangles)
             {
+                if (!newPointSet.Contains(dTri.Points[0]))
+                    newPointSet.Add(dTri.Points[0]);
+                if (!newPointSet.Contains(dTri.Points[1]))
+                    newPointSet.Add(dTri.Points[1]);
+                if (!newPointSet.Contains(dTri.Points[2]))
+                    newPointSet.Add(dTri.Points[2]);
+
                 triIntersection.Add(dTri, new List<Vector2>());
                 Vector2[] tri = new Vector2[3] {    new Vector2(dTri.Points[0].Xf, dTri.Points[0].Yf),
                                                     new Vector2(dTri.Points[1].Xf, dTri.Points[1].Yf),
@@ -300,9 +309,104 @@ namespace TriangleFillTest
                         }
                     }
                 }
-                System.Diagnostics.Debug.WriteLine(String.Format("Tri: \tA({0},{1})\tB({2},{3})\tC({4},{5})\thas got {6} intersections",
-                    tri[0].X, tri[0].Y, tri[1].X, tri[1].Y, tri[2].X, tri[2].Y, triIntersection[dTri].Count));
+
+                List<Vector2>[] edgeIntersections = new List<Vector2>[3] {new List<Vector2>(),new List<Vector2>(),new List<Vector2>()};
+
+                foreach (Vector2 iPt in triIntersection[dTri])
+                {
+                    if (MahdiHelper.OnLine(iPt, MahdiHelper.Line.V2L(new Vector2(dTri.Points[0].Xf, dTri.Points[0].Yf),
+                                                                        new Vector2(dTri.Points[1].Xf, dTri.Points[1].Yf))))
+                        edgeIntersections[0].Add(iPt);
+                    else if (MahdiHelper.OnLine(iPt, MahdiHelper.Line.V2L(new Vector2(dTri.Points[1].Xf, dTri.Points[1].Yf),
+                                                                        new Vector2(dTri.Points[2].Xf, dTri.Points[2].Yf))))
+                        edgeIntersections[1].Add(iPt);
+                    else if (MahdiHelper.OnLine(iPt, MahdiHelper.Line.V2L(new Vector2(dTri.Points[2].Xf, dTri.Points[2].Yf),
+                                                                        new Vector2(dTri.Points[0].Xf, dTri.Points[0].Yf))))
+                        edgeIntersections[2].Add(iPt);
+                    else
+                        System.Diagnostics.Debug.WriteLine(String.Format("ERROR: IntersectionPoint ({0},{1}) is out of any edge", iPt.X, iPt.Y));
+                }
+                //System.Diagnostics.Debug.WriteLine(String.Format("IntersectionPoint @ ({0},{1})", edgeIntersections[0][0].X, edgeIntersections[0][0].Y));
+
+                // sort them by closest to edges mid-point
+                Vector2[] edgeMidPoints = new Vector2[3] 
+                { 
+                    new Vector2((dTri.Points[0].Xf + dTri.Points[1].Xf) / 2, (dTri.Points[0].Yf + dTri.Points[1].Yf) / 2), 
+                    new Vector2((dTri.Points[1].Xf + dTri.Points[2].Xf) / 2, (dTri.Points[1].Yf + dTri.Points[2].Yf) / 2), 
+                    new Vector2((dTri.Points[2].Xf + dTri.Points[0].Xf) / 2, (dTri.Points[2].Yf + dTri.Points[0].Yf) / 2)
+                };
+
+                Vector2[] edgeBestIntersections = new Vector2[3] {-Vector2.One, -Vector2.One, -Vector2.One};
+                for (int n = 0; n < 3; n++)
+                {                    
+                    if (edgeIntersections[n].Count >= 1)
+                    {
+                        float shortest = float.MaxValue;
+                        foreach (Vector2 v in edgeIntersections[n])
+                        {
+                            float l = Vector2.Subtract(v,edgeMidPoints[n]).Length();
+                            if (l < shortest)
+                            {
+                                shortest = l;
+                                edgeBestIntersections[n] = v;
+                            }
+                        }                       
+                    }
+                }
+
+                if (    edgeBestIntersections[0] != -Vector2.One
+                    &&  edgeBestIntersections[1] != -Vector2.One)
+                {
+                    TriangulationPoint t1 = new TriangulationPoint((double)edgeBestIntersections[0].X, (double)edgeBestIntersections[0].Y);
+                    TriangulationPoint t2 = new TriangulationPoint((double)edgeBestIntersections[1].X, (double)edgeBestIntersections[1].Y);
+                    if (newPointSet.Find(delegate(TriangulationPoint tp) { return tp.Xf == t2.Xf && tp.Yf == t2.Yf; }) == null)
+                        newPointSet.Add(t1);
+                    if (newPointSet.Find(delegate(TriangulationPoint tp) { return tp.Xf == t1.Xf && tp.Yf == t1.Yf; }) == null)
+                        newPointSet.Add(t2);
+                }
+                else if (edgeBestIntersections[1] != -Vector2.One
+                    && edgeBestIntersections[2] != -Vector2.One)
+                {
+                    TriangulationPoint t1 = new TriangulationPoint((double)edgeBestIntersections[1].X, (double)edgeBestIntersections[1].Y);
+                    TriangulationPoint t2 = new TriangulationPoint((double)edgeBestIntersections[2].X, (double)edgeBestIntersections[2].Y);
+                    if (newPointSet.Find(delegate(TriangulationPoint tp) { return tp.Xf == t2.Xf && tp.Yf == t2.Yf; }) == null)
+                        newPointSet.Add(t1);
+                    if (newPointSet.Find(delegate(TriangulationPoint tp) { return tp.Xf == t1.Xf && tp.Yf == t1.Yf; }) == null)
+                        newPointSet.Add(t2);
+                }
+                else if (edgeBestIntersections[2] != -Vector2.One
+                    && edgeBestIntersections[0] != -Vector2.One)
+                {                    
+                    TriangulationPoint t1 = new TriangulationPoint((double)edgeBestIntersections[2].X, (double)edgeBestIntersections[2].Y);
+                    TriangulationPoint t2 = new TriangulationPoint((double)edgeBestIntersections[0].X, (double)edgeBestIntersections[0].Y);
+                    if (newPointSet.Find(delegate(TriangulationPoint tp) { return tp.Xf == t2.Xf && tp.Yf == t2.Yf; }) == null)
+                        newPointSet.Add(t1);
+                    if (newPointSet.Find(delegate(TriangulationPoint tp) { return tp.Xf == t1.Xf && tp.Yf == t1.Yf; }) == null)
+                        newPointSet.Add(t2);
+                }
+
+                //System.Diagnostics.Debug.WriteLine(String.Format("Tri: \tA({0},{1})\tB({2},{3})\tC({4},{5})\thas got {6} intersections",
+                //    tri[0].X, tri[0].Y, tri[1].X, tri[1].Y, tri[2].X, tri[2].Y, triIntersection[dTri].Count));
             }
+
+            System.Diagnostics.Debug.WriteLine(String.Format("triangle before: {0}", pointSet.Triangles.Count));
+            System.Diagnostics.Debug.WriteLine(String.Format("points before: {0}", pointSet.Points.Count));
+
+            foreach (TriangulationPoint tp in newPointSet)
+            {
+                System.Diagnostics.Debug.WriteLine(String.Format("{0},{1}", tp.Xf, tp.Yf));
+            }
+
+            pointSet = new PointSet(newPointSet);
+            try
+            {
+                P2T.Warmup();
+                P2T.Triangulate(pointSet);
+            }
+            catch (Exception e) { System.Diagnostics.Debug.WriteLine("FEHLER: " + e.Message); }
+
+            System.Diagnostics.Debug.WriteLine(String.Format("points after: {0}", pointSet.Points.Count));
+            System.Diagnostics.Debug.WriteLine(String.Format("triangle after: {0}", pointSet.Triangles.Count));
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -312,7 +416,11 @@ namespace TriangleFillTest
             {
                 iLines.Add(MahdiHelper.Line.V2L(_intersections[n], _intersections[n + 1]));
             }
+            System.Diagnostics.Debug.WriteLine(String.Format("-----"));
             TriangulateByIntersection(iLines, ref _pointSet);
+
+            _repaintMesh = true;
+            pictureBox1.Invalidate();
         }
     }
 }

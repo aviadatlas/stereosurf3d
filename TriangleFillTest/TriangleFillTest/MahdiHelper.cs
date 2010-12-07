@@ -308,48 +308,9 @@ static class MahdiHelper
     /// <remarks>See http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline2d/</remarks>
     public static bool DoLinesIntersect(Line L1, Line L2, ref Vector2 ptIntersection)
     {
-        // Denominator for ua and ub are the same, so store this calculation
-        double d =
-           (L2.Y2 - L2.Y1) * (L1.X2 - L1.X1)
-           -
-           (L2.X2 - L2.X1) * (L1.Y2 - L1.Y1);
-
-        //n_a and n_b are calculated as seperate values for readability
-        double n_a =
-           (L2.X2 - L2.X1) * (L1.Y1 - L2.Y1)
-           -
-           (L2.Y2 - L2.Y1) * (L1.X1 - L2.X1);
-
-        double n_b =
-           (L1.X2 - L1.X1) * (L1.Y1 - L2.Y1)
-           -
-           (L1.Y2 - L1.Y1) * (L1.X1 - L2.X1);
-
-        // Make sure there is not a division by zero - this also indicates that
-        // the lines are parallel.  
-        // If n_a and n_b were both equal to zero the lines would be on top of each 
-        // other (coincidental).  This check is not done because it is not 
-        // necessary for this implementation (the parallel check accounts for this).
-        if (d == 0)
-            return false;
-
-        // Calculate the intermediate fractional point that the lines potentially intersect.
-        double ua = n_a / d;
-        double ub = n_b / d;
-
-        // The fractional point will be between 0 and 1 inclusive if the lines
-        // intersect.  If the fractional calculation is larger than 1 or smaller
-        // than 0 the lines would need to be longer to intersect.
-        if (ua >= 0d && ua <= 1d && ub >= 0d && ub <= 1d)
-        {
-            ptIntersection.X = (float)(L1.X1 + (ua * (L1.X2 - L1.X1)));
-            ptIntersection.Y = (float)(L1.Y1 + (ua * (L1.Y2 - L1.Y1)));
-            return true;
-        }
-        return false;
+        return DoLinesIntersect(L1, L2, ref ptIntersection, false);
     }
-
-    public static bool DoLinesIntersect2(Line L1, Line L2)
+    public static bool DoLinesIntersect(Line L1, Line L2, ref Vector2 ptIntersection, bool infiniteLines)
     {
         // Denominator for ua and ub are the same, so store this calculation
         double d =
@@ -389,7 +350,46 @@ static class MahdiHelper
             ptIntersection.Y = (float)(L1.Y1 + (ua * (L1.Y2 - L1.Y1)));
             return true;
         }
+        else if (infiniteLines)
+        {
+            ptIntersection = Vector2.Zero;
+            return true;
+        }
+
         return false;
+    }
+
+    public static bool OnLine(Vector2 x, Line line)
+    {
+        Vector2 xp1 = Vector2.Subtract(line.V1, x);        
+        Vector2 xp2 = Vector2.Subtract(line.V2, x);
+
+        if (Math.Round((double)line.Length, 2, MidpointRounding.AwayFromZero) == Math.Round((double)xp1.Length() + (double)xp2.Length(), 2, MidpointRounding.AwayFromZero))
+            return true;
+        else
+            return false;
+        
+        /*Vector2 p2p1 = Vector2.Subtract(line.V1, line.V2);
+
+        float len_xp1 = xp1.Length();
+        float len_xp2 = xp2.Length();
+        float len_pp = p2p1.Length();
+
+        xp1.Normalize();
+        p2p1.Normalize();
+
+        if (    (xp1.X == p2p1.X && xp1.Y == p2p1.Y)
+             || (xp1.X == -p2p1.X && xp1.Y == -p2p1.Y))
+        {
+            if (len_pp == len_xp1 + len_xp2)
+                return true;
+            else
+                return false;
+        }
+        else
+        {
+            return false;
+        }*/
     }
 
     public static int GetMax(int[] range)
@@ -449,5 +449,10 @@ static class MahdiHelper
             return Color.FromArgb(c, c, c);
         else
             return Color.Transparent;
+    }
+
+    public static string Vector2ToString(Vector2 v)
+    {
+        return String.Format("({0},{1}", v.X, v.Y);
     }
 }
