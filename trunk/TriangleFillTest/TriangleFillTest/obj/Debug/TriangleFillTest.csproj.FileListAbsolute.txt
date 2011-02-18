@@ -24,3 +24,5 @@ D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\TriangleFillTest\T
 D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\TriangleFillTest\TriangleFillTest\obj\Debug\TriangleFillTest.csproj.GenerateResource.Cache
 D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\TriangleFillTest\TriangleFillTest\obj\Debug\TriangleFillTest.Form2.resources
 C:\Users\Mahdi\Documents\Visual Studio 2008\Projects\SVN\BA StereoSurf 2D\TriangleFillTest\TriangleFillTest\obj\Debug\TriangleFillTest.Form2.resources
+C:\Users\Mahdi\Documents\Visual Studio 2010\SVN\BachelorArbeit\TriangleFillTest\TriangleFillTest\obj\Debug\TriangleFillTest.exe
+C:\Users\Mahdi\Documents\Visual Studio 2010\SVN\BachelorArbeit\TriangleFillTest\TriangleFillTest\obj\Debug\TriangleFillTest.pdb
