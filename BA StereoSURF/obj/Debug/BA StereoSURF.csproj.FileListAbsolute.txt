@@ -34,3 +34,12 @@ D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\bin\
 D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\bin\Debug\BA StereoSURF.pdb
 D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\bin\Debug\OpenSURFcs.dll
 D:\Users\Mahdi\Documents\Visual Studio 2008\SVN\StereoSURF 2D\BA StereoSURF\bin\Debug\OpenSURFcs.pdb
+C:\Users\Mahdi\Documents\Visual Studio 2010\SVN\BachelorArbeit\BA StereoSURF\obj\Debug\BA StereoSURF.exe
+C:\Users\Mahdi\Documents\Visual Studio 2010\SVN\BachelorArbeit\BA StereoSURF\obj\Debug\BA StereoSURF.pdb
+C:\Users\Mahdi\Documents\Visual Studio 2010\SVN\BachelorArbeit\BA StereoSURF\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Mahdi\Documents\Visual Studio 2010\SVN\BachelorArbeit\BA StereoSURF\obj\Debug\BA_StereoSURF.Form1.resources
+C:\Users\Mahdi\Documents\Visual Studio 2010\SVN\BachelorArbeit\BA StereoSURF\obj\Debug\BA_StereoSURF.ProgressForm.resources
+C:\Users\Mahdi\Documents\Visual Studio 2010\SVN\BachelorArbeit\BA StereoSURF\obj\Debug\BA_StereoSURF.ImageView.resources
+C:\Users\Mahdi\Documents\Visual Studio 2010\SVN\BachelorArbeit\BA StereoSURF\obj\Debug\BA_StereoSURF.Properties.Resources.resources
+C:\Users\Mahdi\Documents\Visual Studio 2010\SVN\BachelorArbeit\BA StereoSURF\obj\Debug\ResGen.read.1.tlog
+C:\Users\Mahdi\Documents\Visual Studio 2010\SVN\BachelorArbeit\BA StereoSURF\obj\Debug\ResGen.write.1.tlog
