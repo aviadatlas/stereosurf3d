@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BA StereoSURF", "BA StereoSURF\BA StereoSURF.csproj", "{682A2F9F-37A5-4F03-8360-DF1A230DCCE2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSURFcs", "BA StereoSURF\OpenSURFcs\OpenSURFcs.csproj", "{E6B624C9-59BB-4E32-893E-161DF6D2C7FB}"
