@@ -1,0 +1,1 @@
+This application will create depthmaps out of a bunch of photos, hopefully ^^
